@@ -8,6 +8,27 @@
 const NetworkMonitor = require('./network-monitor.js');
 const {waitForFullyLoaded, waitForFrameNavigated} = require('./wait-for-condition.js');
 const constants = require('../../config/constants.js');
+const i18n = require('../../lib/i18n/i18n.js');
+const URL = require('../../lib/url-shim.js');
+
+const UIStrings = {
+  /**
+   * @description Warning that the web page redirected during testing and that may have affected the load.
+   * @example {https://example.com/requested/page} requested
+   * @example {https://example.com/final/resolved/page} final
+   */
+  warningRedirected: 'The page may not be loading as expected because your test URL ' +
+  `({requested}) was redirected to {final}. ` +
+  'Try testing the second URL directly.',
+  /**
+   * @description Warning that Lighthouse timed out while waiting for the page to load.
+   */
+  warningTimeout: 'The page loaded too slowly to finish within the time limit. ' +
+  'Results may be incomplete.',
+};
+
+const str_ = i18n.createMessageInstanceIdFn(__filename, UIStrings);
+
 
 // Controls how long to wait after FCP before continuing
 const DEFAULT_PAUSE_AFTER_FCP = 0;
@@ -58,7 +79,7 @@ function resolveWaitForFullyLoadedOptions(options) {
  * @param {LH.Gatherer.FRTransitionalDriver} driver
  * @param {string} url
  * @param {NavigationOptions} options
- * @return {Promise<{finalUrl: string, timedOut: boolean}>}
+ * @return {Promise<{finalUrl: string, timedOut: boolean, warnings: Array<LH.IcuMessage>}>}
  */
 async function gotoURL(driver, url, options) {
   const session = driver.defaultSession;
@@ -103,7 +124,29 @@ async function gotoURL(driver, url, options) {
   return {
     finalUrl,
     timedOut,
+    warnings: getNavigationWarnings({timedOut, finalUrl, requestedUrl: url}),
   };
 }
 
-module.exports = {gotoURL};
+/**
+ * @param {{timedOut: boolean, requestedUrl: string, finalUrl: string; }} navigation
+ * @return {Array<LH.IcuMessage>}
+ */
+function getNavigationWarnings(navigation) {
+  const {requestedUrl, finalUrl} = navigation;
+  /** @type {Array<LH.IcuMessage>} */
+  const warnings = [];
+
+  if (navigation.timedOut) warnings.push(str_(UIStrings.warningTimeout));
+
+  if (!URL.equalWithExcludedFragments(requestedUrl, finalUrl)) {
+    warnings.push(str_(UIStrings.warningRedirected, {
+      requested: requestedUrl,
+      final: finalUrl,
+    }));
+  }
+
+  return warnings;
+}
+
+module.exports = {gotoURL, UIStrings};

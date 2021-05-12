@@ -11,8 +11,7 @@ const NetworkRecorder = require('../lib/network-recorder.js');
 const emulation = require('../lib/emulation.js');
 const constants = require('../config/constants.js');
 const i18n = require('../lib/i18n/i18n.js');
-const URL = require('../lib/url-shim.js');
-const {getBenchmarkIndex} = require('./driver/environment.js');
+const {getBenchmarkIndex, getEnvironmentWarnings} = require('./driver/environment.js');
 const prepare = require('./driver/prepare.js');
 const storage = require('./driver/storage.js');
 const navigation = require('./driver/navigation.js');
@@ -21,38 +20,6 @@ const WebAppManifest = require('./gatherers/web-app-manifest.js');
 const InstallabilityErrors = require('./gatherers/installability-errors.js');
 const NetworkUserAgent = require('./gatherers/network-user-agent.js');
 const Stacks = require('./gatherers/stacks.js');
-
-const UIStrings = {
-  /**
-   * @description Warning that the web page redirected during testing and that may have affected the load.
-   * @example {https://example.com/requested/page} requested
-   * @example {https://example.com/final/resolved/page} final
-   */
-  warningRedirected: 'The page may not be loading as expected because your test URL ' +
-  `({requested}) was redirected to {final}. ` +
-  'Try testing the second URL directly.',
-  /**
-   * @description Warning that Lighthouse timed out while waiting for the page to load.
-   */
-  warningTimeout: 'The page loaded too slowly to finish within the time limit. ' +
-  'Results may be incomplete.',
-  /**
-   * @description Warning that the host device where Lighthouse is running appears to have a slower
-   * CPU than the expected Lighthouse baseline.
-   */
-  warningSlowHostCpu: 'The tested device appears to have a slower CPU than  ' +
-  'Lighthouse expects. This can negatively affect your performance score. Learn more about ' +
-  '[calibrating an appropriate CPU slowdown multiplier](https://github.com/GoogleChrome/lighthouse/blob/master/docs/throttling.md#cpu-throttling).',
-};
-
-/**
- * We want to warn when the CPU seemed to be at least ~2x weaker than our regular target device.
- * We're starting with a more conservative value that will increase over time to our true target threshold.
- * @see https://github.com/GoogleChrome/lighthouse/blob/ccbc8002fd058770d14e372a8301cc4f7d256414/docs/throttling.md#calibrating-multipliers
- */
-const SLOW_CPU_BENCHMARK_INDEX_THRESHOLD = 1000;
-
-const str_ = i18n.createMessageInstanceIdFn(__filename, UIStrings);
 
 /** @typedef {import('../gather/driver.js')} Driver */
 
@@ -101,7 +68,8 @@ class GatherRunner {
     };
     log.time(status);
     try {
-      const {finalUrl, timedOut} = await navigation.gotoURL(driver, passContext.url, {
+      const requestedUrl = passContext.url;
+      const {finalUrl, warnings} = await navigation.gotoURL(driver, requestedUrl, {
         waitUntil: passContext.passConfig.recordTrace ?
           ['load', 'fcp'] : ['load'],
         maxWaitForFcp: passContext.settings.maxWaitForFcp,
@@ -109,7 +77,7 @@ class GatherRunner {
         ...passContext.passConfig,
       });
       passContext.url = finalUrl;
-      if (timedOut) passContext.LighthouseRunWarnings.push(str_(UIStrings.warningTimeout));
+      passContext.LighthouseRunWarnings.push(...warnings);
     } catch (err) {
       // If it's one of our loading-based LHErrors, we'll treat it as a page load error.
       if (err.code === 'NO_FCP' || err.code === 'PAGE_HUNG') {
@@ -220,34 +188,6 @@ class GatherRunner {
       }
     }
     log.timeEnd(status);
-  }
-
-  /**
-   * Returns a warning if the host device appeared to be underpowered according to BenchmarkIndex.
-   *
-   * @param {Pick<LH.Gatherer.PassContext, 'settings'|'baseArtifacts'>} passContext
-   * @return {LH.IcuMessage | undefined}
-   */
-  static getSlowHostCpuWarning(passContext) {
-    const {settings, baseArtifacts} = passContext;
-    const {throttling, throttlingMethod} = settings;
-    const defaultThrottling = constants.defaultSettings.throttling;
-
-    // We only want to warn when the user can take an action to fix it.
-    // Eventually, this should expand to cover DevTools.
-    if (settings.channel !== 'cli') return;
-
-    // Only warn if they are using the default throttling settings.
-    const isThrottledMethod = throttlingMethod === 'simulate' || throttlingMethod === 'devtools';
-    const isDefaultMultiplier =
-      throttling.cpuSlowdownMultiplier === defaultThrottling.cpuSlowdownMultiplier;
-    if (!isThrottledMethod || !isDefaultMultiplier) return;
-
-    // Only warn if the device didn't meet the threshold.
-    // See https://github.com/GoogleChrome/lighthouse/blob/master/docs/throttling.md#cpu-throttling
-    if (baseArtifacts.BenchmarkIndex > SLOW_CPU_BENCHMARK_INDEX_THRESHOLD) return;
-
-    return str_(UIStrings.warningSlowHostCpu);
   }
 
   /**
@@ -481,13 +421,6 @@ class GatherRunner {
 
     // Copy redirected URL to artifact.
     baseArtifacts.URL.finalUrl = passContext.url;
-    /* eslint-disable max-len */
-    if (!URL.equalWithExcludedFragments(baseArtifacts.URL.requestedUrl, baseArtifacts.URL.finalUrl)) {
-      baseArtifacts.LighthouseRunWarnings.push(str_(UIStrings.warningRedirected, {
-        requested: baseArtifacts.URL.requestedUrl,
-        final: baseArtifacts.URL.finalUrl,
-      }));
-    }
 
     // Fetch the manifest, if it exists.
     baseArtifacts.WebAppManifest = await WebAppManifest.getWebAppManifest(
@@ -504,8 +437,8 @@ class GatherRunner {
     const devtoolsLog = baseArtifacts.devtoolsLogs[passContext.passConfig.passName];
     baseArtifacts.NetworkUserAgent = NetworkUserAgent.getNetworkUserAgent(devtoolsLog);
 
-    const slowCpuWarning = GatherRunner.getSlowHostCpuWarning(passContext);
-    if (slowCpuWarning) baseArtifacts.LighthouseRunWarnings.push(slowCpuWarning);
+    const environmentWarnings = getEnvironmentWarnings(passContext);
+    baseArtifacts.LighthouseRunWarnings.push(...environmentWarnings);
 
     log.timeEnd(status);
   }
@@ -673,4 +606,3 @@ class GatherRunner {
 }
 
 module.exports = GatherRunner;
-module.exports.UIStrings = UIStrings;
