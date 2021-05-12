@@ -149,4 +149,4 @@ function getNavigationWarnings(navigation) {
   return warnings;
 }
 
-module.exports = {gotoURL, UIStrings};
+module.exports = {gotoURL, getNavigationWarnings, UIStrings};

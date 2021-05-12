@@ -228,6 +228,7 @@ function makeMocksForGatherRunner() {
   jest.mock('../gather/driver/environment.js', () => ({
     getBenchmarkIndex: () => Promise.resolve(150),
     getBrowserVersion: async () => ({userAgent: 'Chrome', milestone: 80}),
+    getEnvironmentWarnings: () => [],
   }));
   jest.mock('../gather/gatherers/stacks.js', () => ({collectStacks: () => Promise.resolve([])}));
   jest.mock('../gather/gatherers/installability-errors.js', () => ({
@@ -251,7 +252,11 @@ function makeMocksForGatherRunner() {
     getImportantStorageWarning: jest.fn(),
   }));
   jest.mock('../gather/driver/navigation.js', () => ({
-    gotoURL: jest.fn().mockResolvedValue({finalUrl: 'http://example.com', timedOut: false}),
+    gotoURL: jest.fn().mockResolvedValue({
+      finalUrl: 'http://example.com',
+      timedOut: false,
+      warnings: [],
+    }),
   }));
 }
 

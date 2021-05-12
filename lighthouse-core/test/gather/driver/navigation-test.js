@@ -5,7 +5,7 @@
  */
 'use strict';
 
-const {gotoURL} = require('../../../gather/driver/navigation.js');
+const {gotoURL, getNavigationWarnings} = require('../../../gather/driver/navigation.js');
 const {createMockDriver} = require('../../fraggle-rock/gather/mock-driver.js');
 const {
   createMockOnceFn,
@@ -37,10 +37,10 @@ describe('.gotoURL', () => {
       .mockResponse('Page.getResourceTree', {frameTree: {frame: {id: 'ABC'}}});
   });
 
-  it('will track redirects through gotoURL load', async () => {
+  it('will track redirects through gotoURL load with warning', async () => {
     mockDriver.defaultSession.on = mockDriver.defaultSession.once = createMockOnceFn();
 
-    const url = 'https://www.example.com';
+    const url = 'http://example.com';
 
     const loadPromise = makePromiseInspectable(gotoURL(driver, url, {waitUntil: ['navigated']}));
     await flushAllTimersAndMicrotasks();
@@ -78,6 +78,30 @@ describe('.gotoURL', () => {
 
     const results = await loadPromise;
     expect(results.finalUrl).toEqual('https://m.example.com/client');
+    expect(results.warnings).toMatchObject([
+      {
+        values: {
+          requested: 'http://example.com',
+          final: 'https://m.example.com/client',
+        },
+      },
+    ]);
+  });
+
+  it('does not add warnings when URLs are equal', async () => {
+    mockDriver.defaultSession.on = mockDriver.defaultSession.once = createMockOnceFn();
+
+    const url = 'https://www.example.com';
+
+    const loadPromise = makePromiseInspectable(gotoURL(driver, url, {waitUntil: ['navigated']}));
+    await flushAllTimersAndMicrotasks();
+    const [_, listener] = mockDriver.defaultSession.on.getListeners('Page.frameNavigated');
+    listener({frame: {url: 'https://www.example.com'}});
+    await flushAllTimersAndMicrotasks();
+    expect(loadPromise).toBeDone('Did not resolve after frameNavigated');
+
+    const {warnings} = await loadPromise;
+    expect(warnings).toEqual([]);
   });
 
   it('waits for Page.frameNavigated', async () => {
@@ -171,5 +195,42 @@ describe('.gotoURL', () => {
     await expect(loadPromise).rejects.toMatchObject({
       message: 'Cannot wait for FCP without waiting for page load',
     });
+  });
+});
+
+describe('.getNavigationWarnings()', () => {
+  const normalNavigation = {
+    timedOut: false,
+    requestedUrl: 'http://example.com/',
+    finalUrl: 'http://example.com/',
+  };
+
+  it('finds no warnings by default', () => {
+    const warnings = getNavigationWarnings(normalNavigation);
+    expect(warnings).toHaveLength(0);
+  });
+
+  it('adds a timeout warning', () => {
+    const warnings = getNavigationWarnings({...normalNavigation, timedOut: true});
+    expect(warnings).toHaveLength(1);
+  });
+
+  it('adds a url mismatch warning', () => {
+    const finalUrl = 'https://m.example.com/client';
+    const warnings = getNavigationWarnings({...normalNavigation, finalUrl});
+    expect(warnings).toMatchObject([
+      {
+        values: {
+          requested: 'http://example.com/',
+          final: finalUrl,
+        },
+      },
+    ]);
+  });
+
+  it('does not add a url mismatch warning for fragment differences', () => {
+    const finalUrl = 'http://example.com/#fragment';
+    const warnings = getNavigationWarnings({...normalNavigation, finalUrl});
+    expect(warnings).toHaveLength(0);
   });
 });

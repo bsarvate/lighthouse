@@ -30,7 +30,6 @@ const GatherRunner = {
   beginRecording: makeParamsOptional(GatherRunner_.beginRecording),
   collectArtifacts: makeParamsOptional(GatherRunner_.collectArtifacts),
   endRecording: makeParamsOptional(GatherRunner_.endRecording),
-  getSlowHostCpuWarning: makeParamsOptional(GatherRunner_.getSlowHostCpuWarning),
   initializeBaseArtifacts: makeParamsOptional(GatherRunner_.initializeBaseArtifacts),
   loadPage: makeParamsOptional(GatherRunner_.loadPage),
   run: makeParamsOptional(GatherRunner_.run),
@@ -132,7 +131,11 @@ beforeEach(() => {
   prepare.prepareTargetForIndividualNavigation = jest.fn().mockResolvedValue({warnings: []});
 
   const navigation = jest.requireMock('../../gather/driver/navigation.js');
-  navigation.gotoURL = jest.fn().mockResolvedValue({finalUrl: 'https://example.com'});
+  navigation.gotoURL = jest.fn().mockResolvedValue({
+    finalUrl: 'https://example.com',
+    timedOut: false,
+    warnings: [],
+  });
 });
 
 afterEach(() => {
@@ -146,11 +149,12 @@ describe('GatherRunner', function() {
     const url2 = 'https://example.com/interstitial';
     const driver = {};
     const gotoURL = jest.requireMock('../../gather/driver/navigation.js').gotoURL;
-    gotoURL.mockResolvedValue({finalUrl: url2});
+    gotoURL.mockResolvedValue({finalUrl: url2, warnings: []});
 
     const passContext = {
       url: url1,
       settings: {},
+      LighthouseRunWarnings: [],
       passConfig: {
         gatherers: [],
       },
@@ -214,7 +218,7 @@ describe('GatherRunner', function() {
     const requestedUrl = 'https://example.com';
     const finalUrl = 'https://example.com/interstitial';
     const gotoURL = jest.requireMock('../../gather/driver/navigation.js').gotoURL;
-    gotoURL.mockResolvedValue({finalUrl, timedOut: false});
+    gotoURL.mockResolvedValue({finalUrl, timedOut: false, warnings: []});
     const config = makeConfig({passes: [{passName: 'defaultPass'}]});
     const options = {requestedUrl, driver: fakeDriver, settings: config.settings};
 
@@ -504,7 +508,7 @@ describe('GatherRunner', function() {
 
     const gotoUrlForAboutBlank = jest.fn().mockResolvedValue({});
     const gotoUrlForRealUrl = jest.fn()
-      .mockResolvedValueOnce({finalUrl: requestedUrl, timedOut: false})
+      .mockResolvedValueOnce({finalUrl: requestedUrl, timedOut: false, warnings: []})
       .mockRejectedValueOnce(navigationError);
     const driver = Object.assign({}, fakeDriver, {
       online: true,
@@ -792,7 +796,7 @@ describe('GatherRunner', function() {
         if (url.includes('blank')) return null;
         if (firstLoad) {
           firstLoad = false;
-          return {finalUrl: requestedUrl, timedOut: false};
+          return {finalUrl: requestedUrl, timedOut: false, warnings: []};
         } else {
           throw new LHError(LHError.errors.NO_FCP);
         }
@@ -1175,16 +1179,14 @@ describe('GatherRunner', function() {
       });
 
       const gotoURL = jest.requireMock('../../gather/driver/navigation.js').gotoURL;
-      gotoURL.mockResolvedValue({finalUrl: requestedUrl, timedOut: true});
+      gotoURL.mockResolvedValue({finalUrl: requestedUrl, warnings: ['It is too slow']});
 
       return GatherRunner.run(config.passes, {
         driver: timedoutDriver,
         requestedUrl,
         settings: config.settings,
       }).then(artifacts => {
-        assert.equal(artifacts.LighthouseRunWarnings.length, 1);
-        expect(artifacts.LighthouseRunWarnings[0])
-          .toBeDisplayString(/too slow/);
+        expect(artifacts.LighthouseRunWarnings).toEqual(['It is too slow']);
       });
     });
 
@@ -1217,54 +1219,6 @@ describe('GatherRunner', function() {
         .then(_ => {
           assert.ok(true);
         });
-    });
-  });
-
-  describe('.getSlowHostCpuWarning', () => {
-    /** @type {RecursivePartial<LH.Gatherer.PassContext>} */
-    let passContext;
-
-    beforeEach(() => {
-      passContext = {
-        settings: {
-          channel: 'cli',
-          throttlingMethod: 'simulate',
-          throttling: {cpuSlowdownMultiplier: 4},
-        },
-        baseArtifacts: {
-          BenchmarkIndex: 500,
-        },
-      };
-    });
-
-    it('should add a warning when benchmarkindex is low', () => {
-      expect(GatherRunner.getSlowHostCpuWarning(passContext))
-        .toBeDisplayString(/appears to have a slower CPU/);
-    });
-
-    it('should ignore non-cli channels', () => {
-      Object.assign(passContext.settings, {channel: 'devtools'});
-      expect(GatherRunner.getSlowHostCpuWarning(passContext)).toBe(undefined);
-
-      Object.assign(passContext.settings, {channel: 'wpt'});
-      expect(GatherRunner.getSlowHostCpuWarning(passContext)).toBe(undefined);
-
-      Object.assign(passContext.settings, {channel: 'psi'});
-      expect(GatherRunner.getSlowHostCpuWarning(passContext)).toBe(undefined);
-    });
-
-    it('should ignore non-default throttling settings', () => {
-      Object.assign(passContext.settings, {throttling: {cpuSlowdownMultiplier: 2}});
-      expect(GatherRunner.getSlowHostCpuWarning(passContext)).toBe(undefined);
-
-      Object.assign(passContext.settings, {throttlingMethod: 'provided'});
-      Object.assign(passContext.settings, {throttling: {cpuSlowdownMultiplier: 4}});
-      expect(GatherRunner.getSlowHostCpuWarning(passContext)).toBe(undefined);
-    });
-
-    it('should ignore high benchmarkindex values', () => {
-      Object.assign(passContext.baseArtifacts, {BenchmarkIndex: 1500});
-      expect(GatherRunner.getSlowHostCpuWarning(passContext)).toBe(undefined);
     });
   });
 });

@@ -61,11 +61,11 @@ async function getBenchmarkIndex(executionContext) {
 /**
  * Returns a warning if the host device appeared to be underpowered according to BenchmarkIndex.
  *
- * @param {{settings: LH.Config.Settings; BenchmarkIndex: number}} context
+ * @param {{settings: LH.Config.Settings; baseArtifacts: Pick<LH.Artifacts, 'BenchmarkIndex'>}} context
  * @return {LH.IcuMessage | undefined}
  */
 function getSlowHostCpuWarning(context) {
-  const {settings, BenchmarkIndex} = context;
+  const {settings, baseArtifacts} = context;
   const {throttling, throttlingMethod} = settings;
   const defaultThrottling = constants.defaultSettings.throttling;
 
@@ -81,7 +81,7 @@ function getSlowHostCpuWarning(context) {
 
   // Only warn if the device didn't meet the threshold.
   // See https://github.com/GoogleChrome/lighthouse/blob/master/docs/throttling.md#cpu-throttling
-  if (BenchmarkIndex > SLOW_CPU_BENCHMARK_INDEX_THRESHOLD) return;
+  if (baseArtifacts.BenchmarkIndex > SLOW_CPU_BENCHMARK_INDEX_THRESHOLD) return;
 
   return str_(UIStrings.warningSlowHostCpu);
 }
@@ -91,10 +91,8 @@ function getSlowHostCpuWarning(context) {
  * @return {Array<LH.IcuMessage>}
  */
 function getEnvironmentWarnings(context) {
-  const {settings, baseArtifacts} = context;
-
   return [
-    getSlowHostCpuWarning({settings, BenchmarkIndex: baseArtifacts.BenchmarkIndex}),
+    getSlowHostCpuWarning(context),
   ].filter(/** @return {s is LH.IcuMessage} */ s => !!s);
 }
 
@@ -102,5 +100,6 @@ module.exports = {
   UIStrings,
   getBrowserVersion,
   getBenchmarkIndex,
+  getSlowHostCpuWarning,
   getEnvironmentWarnings,
 };
