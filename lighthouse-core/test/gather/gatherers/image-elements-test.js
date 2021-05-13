@@ -10,7 +10,11 @@
 const ImageElements = require('../../../gather/gatherers/image-elements.js');
 const NetworkRecorder = require('../../../lib/network-recorder.js');
 const NetworkRequest = require('../../../lib/network-request.js');
-const {createMockContext, createMockDriver, createMockSession} = require('../../fraggle-rock/gather/mock-driver.js');
+const {
+  createMockContext,
+  createMockDriver,
+  createMockSession,
+} = require('../../fraggle-rock/gather/mock-driver.js');
 
 const devtoolsLog = /** @type {LH.DevtoolsLog} */ (require('../../fixtures/traces/lcp-m78.devtools.log.json')); // eslint-disable-line max-len
 const networkRecords = NetworkRecorder.recordsFromLogs(devtoolsLog);
@@ -82,7 +86,7 @@ describe('.fetchElementsWithSizingInformation', () => {
   beforeEach(() => {
     gatherer = mockImageElements();
     driver = createMockDriver();
-  })
+  });
 
   it('uses natural dimensions from cache if possible', async () => {
     const element = mockEl();
@@ -137,14 +141,18 @@ describe('.fetchSourceRules', () => {
   beforeEach(() => {
     gatherer = mockImageElements();
     session = createMockSession();
-  })
+  });
 
   it('handles no node found error', async () => {
     session.sendCommand.mockImplementationOnce(() => {
       throw Error('No node found');
-    })
+    });
 
-    const returnPromise = gatherer.fetchSourceRules(session.asSession(), '1,HTML,1,BODY,1,IMG', mockEl());
+    const returnPromise = gatherer.fetchSourceRules(
+      session.asSession(),
+      '1,HTML,1,BODY,1,IMG',
+      mockEl()
+    );
     await expect(returnPromise).resolves.not.toThrow();
   });
 
@@ -167,7 +175,7 @@ describe('.fetchSourceRules', () => {
         width: '200px',
         height: '200px',
         aspectRatio: '1 / 1',
-      }
+      },
     });
   });
 
@@ -189,7 +197,7 @@ describe('.fetchSourceRules', () => {
         width: '200px',
         height: '200px',
         aspectRatio: null,
-      }
+      },
     });
   });
 
@@ -203,7 +211,7 @@ describe('.fetchSourceRules', () => {
             style: {cssProperties: [
               {name: 'width', value: '200px'},
               {name: 'height', value: '200px'},
-            ]}
+            ]},
           },
           matchingSelectors: [0],
         },
@@ -212,7 +220,7 @@ describe('.fetchSourceRules', () => {
             selectorList: {selectors: [{text: '.classy'}]},
             style: {cssProperties: [
               {name: 'aspect-ratio', value: '1 / 1'},
-            ]}
+            ]},
           },
           matchingSelectors: [0],
         },
@@ -228,7 +236,7 @@ describe('.fetchSourceRules', () => {
         width: '200px',
         height: '200px',
         aspectRatio: '1 / 1',
-      }
+      },
     });
   });
 });
@@ -354,7 +362,7 @@ describe('.collectExtraDetails', () => {
     expect(gatherer.fetchSourceRules).toHaveBeenCalledTimes(1);
   });
 
-  it('fetch multiple source rules to determine sizing for non-shadow DOM/non-CSS images', async () => {
+  it('fetch multiple source rules for non-shadow DOM/non-CSS images', async () => {
     const elements = [
       {...mockEl(), isInShadowDOM: false, isCss: false},
       {...mockEl(), isInShadowDOM: false, isCss: false},
