@@ -163,7 +163,7 @@ describe('.collectExtraDetails', () => {
     gatherer.fetchElementWithSizeInformation.mockImplementation();
   });
 
-  it('respects the overall time budget for source rules', () => {
+  it('respects the overall time budget for source rules', async () => {
     const elements = [
       {node: {}, isInShadowDOM: false, isCss: false},
       {node: {}, isInShadowDOM: false, isCss: false},
@@ -173,25 +173,38 @@ describe('.collectExtraDetails', () => {
       jest.advanceTimersByTime(6000);
     });
 
-    gatherer.collectExtraDetails({}, elements, {});
+    await gatherer.collectExtraDetails({}, elements, {});
 
     expect(gatherer.fetchSourceRules).toHaveBeenCalledTimes(1);
   });
 
-  it('fetch source rules to determine sizing for non-shadow DOM/non-CSS images', () => {
+  it('fetch source rules to determine sizing for non-shadow DOM/non-CSS images', async () => {
     const elements = [
       {node: {}, isInShadowDOM: false, isCss: false},
       {node: {}, isInShadowDOM: true, isCss: false},
       {node: {}, isInShadowDOM: false, isCss: true},
     ];
 
-    gatherer.collectExtraDetails({}, elements, {});
+    await gatherer.collectExtraDetails({}, elements, {});
 
     expect(gatherer.fetchSourceRules).toHaveBeenCalledTimes(1);
     expect(gatherer.fetchSourceRules).toHaveBeenCalledWith(undefined, undefined, elements[0]);
   });
 
-  it('fetch size information for image with picture', () => {
+  it('fetch multiple source rules to determine sizing for non-shadow DOM/non-CSS images', async () => {
+    const elements = [
+      {node: {}, isInShadowDOM: false, isCss: false},
+      {node: {}, isInShadowDOM: false, isCss: false},
+    ];
+
+    await gatherer.collectExtraDetails({}, elements, {});
+
+    expect(gatherer.fetchSourceRules).toHaveBeenCalledTimes(2);
+    expect(gatherer.fetchSourceRules).toHaveBeenNthCalledWith(1, undefined, undefined, elements[0]);
+    expect(gatherer.fetchSourceRules).toHaveBeenNthCalledWith(2, undefined, undefined, elements[1]);
+  });
+
+  it('fetch size information for image with picture', async () => {
     const elements = [
       {node: {}, src: 'https://example.com/a.png', isPicture: true, isCss: true, srcset: 'src'},
       {node: {}, src: 'https://example.com/b.png', isPicture: false, isCss: true, srcset: 'src'},
@@ -206,7 +219,7 @@ describe('.collectExtraDetails', () => {
       'https://example.com/d.png': {},
     };
 
-    gatherer.collectExtraDetails({}, elements, indexedNetworkRecords);
+    await gatherer.collectExtraDetails({}, elements, indexedNetworkRecords);
 
     expect(gatherer.fetchElementWithSizeInformation).toHaveBeenCalledTimes(1);
     expect(gatherer.fetchElementWithSizeInformation).toHaveBeenCalledWith({}, elements[0]);
