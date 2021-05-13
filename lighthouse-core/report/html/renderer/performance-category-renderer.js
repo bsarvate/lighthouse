@@ -301,7 +301,6 @@ class PerformanceCategoryRenderer extends CategoryRenderer {
    * @param {HTMLDivElement} categoryEl
    */
   renderMetricAuditFilter(filterableMetrics, categoryEl) {
-    // thx https://codepen.io/surjithctly/pen/weEJvX
     const metricFilterEl = this.dom.createElement('div', 'lh-metricfilter');
     const textEl = this.dom.createChildOf(metricFilterEl, 'span', 'lh-metricfilter__text');
     textEl.textContent = 'Show audits relevant to: ';
@@ -311,19 +310,18 @@ class PerformanceCategoryRenderer extends CategoryRenderer {
       ...filterableMetrics,
     ]);
     for (const metric of filterChoices) {
-      // The radio elements are appended into `categoryEl` to allow the sweet ~ selectors to work
       const elemId = `metric-${metric.acronym}`;
-      const radioEl = this.dom.createChildOf(categoryEl, 'input', 'lh-metricfilter__radio', {
-        type: 'radio',
-        name: 'metricsfilter',
-        id: elemId,
-        hidden: 'true',
-      });
       const labelEl = this.dom.createChildOf(metricFilterEl, 'label', 'lh-metricfilter__label', {
         for: elemId,
         title: metric.result && metric.result.title,
       });
       labelEl.textContent = metric.acronym || metric.id;
+      const radioEl = this.dom.createChildOf(labelEl, 'input', 'lh-metricfilter__radio', {
+        type: 'radio',
+        name: 'metricsfilter',
+        id: elemId,
+        hidden: 'true',
+      });
 
       if (metric.acronym === 'All') {
         radioEl.checked = true;
