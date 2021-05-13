@@ -65,6 +65,7 @@ declare global {
       export interface AuditRef extends Result.AuditRef {
         result: Audit.Result;
         stackPacks?: StackPackDescription[];
+        relevantMetrics?: LH.ReportResult.AuditRef[];
       }
 
       export interface StackPackDescription {

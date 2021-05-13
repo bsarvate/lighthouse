@@ -102,10 +102,29 @@ class Util {
 
     // For convenience, smoosh all AuditResults into their auditRef (which has just weight & group)
     if (typeof clone.categories !== 'object') throw new Error('No categories provided.');
+
+    /** @type {Map<string, Array<LH.ReportResult.AuditRef>>} */
+    const relevantAuditToMetricsMap = new Map();
+
     for (const category of Object.values(clone.categories)) {
+      // Make basic lookup table for relevantAudits
+      category.auditRefs.forEach(metricRef => {
+        if (!metricRef.relevantAudits) return;
+        metricRef.relevantAudits.forEach(auditId => {
+          const arr = relevantAuditToMetricsMap.get(auditId) || [];
+          arr.push(metricRef);
+          relevantAuditToMetricsMap.set(auditId, arr);
+        });
+      });
+
       category.auditRefs.forEach(auditRef => {
         const result = clone.audits[auditRef.id];
         auditRef.result = result;
+
+        // Attach any relevantMetric auditRefs
+        if (relevantAuditToMetricsMap.has(auditRef.id)) {
+          auditRef.relevantMetrics = relevantAuditToMetricsMap.get(auditRef.id);
+        }
 
         // attach the stackpacks to the auditRef object
         if (clone.stackPacks) {

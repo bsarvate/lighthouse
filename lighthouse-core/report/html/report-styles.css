@@ -522,6 +522,16 @@
 .lh-audit__stackpack {
   color: var(--report-text-color-secondary);
 }
+.lh-audit__adorn {
+  border: 1px solid slategray;
+  border-radius: 3px;
+  margin: 0 3px;
+  padding: 0 2px;
+  line-height: 1.1;
+  display: inline-block;
+  font-size: 90%;
+}
+
 .lh-category-header__description  {
   font-size: var(--report-font-size);
   text-align: center;
