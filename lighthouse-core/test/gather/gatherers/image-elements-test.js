@@ -68,14 +68,12 @@ const mockEl = {
 
 function mockImageElements() {
   const gatherer = new ImageElements();
-  return {
-    ...gatherer,
-    _getArtifact: jest.fn(gatherer._getArtifact),
-    collectExtraDetails: jest.fn(gatherer.collectExtraDetails),
-    indexNetworkRecords: jest.fn(gatherer.indexNetworkRecords),
-    fetchSourceRules: jest.fn(gatherer.fetchSourceRules),
-    fetchElementWithSizeInformation: jest.fn(gatherer.fetchElementWithSizeInformation),
-  };
+  jest.spyOn(gatherer, '_getArtifact');
+  jest.spyOn(gatherer, 'collectExtraDetails');
+  jest.spyOn(gatherer, 'indexNetworkRecords');
+  jest.spyOn(gatherer, 'fetchSourceRules');
+  jest.spyOn(gatherer, 'fetchElementWithSizeInformation');
+  return gatherer;
 }
 
 describe('.indexNetworkRecords', () => {
@@ -168,8 +166,8 @@ describe('.collectExtraDetails', () => {
   beforeEach(() => {
     driver = createMockDriver().asDriver();
     gatherer = mockImageElements();
-    gatherer.fetchSourceRules.mockImplementation();
-    gatherer.fetchElementWithSizeInformation.mockImplementation();
+    gatherer.fetchSourceRules = jest.fn();
+    gatherer.fetchElementWithSizeInformation = jest.fn();
   });
 
   it('respects the overall time budget for source rules', async () => {
@@ -178,7 +176,7 @@ describe('.collectExtraDetails', () => {
       {...mockEl, isInShadowDOM: false, isCss: false},
       {...mockEl, isInShadowDOM: false, isCss: false},
     ];
-    gatherer.fetchSourceRules.mockImplementation(async () => {
+    gatherer.fetchSourceRules = jest.fn().mockImplementation(async () => {
       jest.advanceTimersByTime(6000);
     });
 
