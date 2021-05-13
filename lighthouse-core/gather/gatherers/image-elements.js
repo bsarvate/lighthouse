@@ -225,7 +225,7 @@ function getEffectiveSizingRule({attributesStyle, inlineStyle, matchedCSSRules},
 class ImageElements extends FRGatherer {
   /** @type {LH.Gatherer.GathererMeta<'DevtoolsLog'>} */
   meta = {
-    supportedModes: ['snapshot', 'navigation'],
+    supportedModes: ['navigation'],
     dependencies: {DevtoolsLog: DevtoolsLog.symbol},
   };
 

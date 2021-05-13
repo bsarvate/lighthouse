@@ -23,7 +23,6 @@ declare global {
       | 'Fonts'
       | 'FullPageScreenshot'
       | 'HTTPRedirect'
-      | 'ImageElements'
       | 'InspectorIssues'
       | 'Manifest'
       | 'MixedContent'
