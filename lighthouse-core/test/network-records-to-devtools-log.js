@@ -155,6 +155,21 @@ function getLoadingFinishedEvent(networkRecord, index) {
 }
 
 /**
+ * @param {Partial<NetworkRequest>} networkRecord
+ * @return {LH.Protocol.RawEventMessage}
+ */
+function getLoadingFailedEvent(networkRecord, index) {
+  return {
+    method: 'Network.loadingFailed',
+    params: {
+      requestId: getBaseRequestId(networkRecord) || `${idBase}.${index}`,
+      timestamp: networkRecord.endTime || 3,
+      errorText: networkRecord.localizedFailDescription || 'Request failed',
+    },
+  };
+}
+
+/**
  * Returns true if `record` is redirected by another record.
  * @param {Array<Partial<NetworkRequest>>} networkRecords
  * @param {Partial<NetworkRequest>} record
@@ -220,6 +235,11 @@ function networkRecordsToDevtoolsLog(networkRecords, options = {}) {
 
     if (networkRecord.fromMemoryCache) {
       devtoolsLog.push(getRequestServedFromCacheEvent(networkRecord, index));
+    }
+
+    if (networkRecord.failed) {
+      devtoolsLog.push(getLoadingFailedEvent(networkRecord, index));
+      return;
     }
 
     devtoolsLog.push(getResponseReceivedEvent(networkRecord, index));

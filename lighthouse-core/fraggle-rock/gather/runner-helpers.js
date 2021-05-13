@@ -12,6 +12,7 @@
  * @property {ArtifactState} artifactState
  * @property {LH.Gatherer.FRGatherPhase} phase
  * @property {LH.Gatherer.GatherMode} gatherMode
+ * @property {Map<string, LH.ArbitraryEqualityMap>} computedCache
  */
 
 /** @typedef {Record<string, Promise<any>>} IntermediateArtifacts */
@@ -58,7 +59,7 @@ const phaseToPriorPhase = {
  * @param {CollectPhaseArtifactOptions} options
  */
 async function collectPhaseArtifacts(options) {
-  const {driver, artifactDefinitions, artifactState, phase, gatherMode} = options;
+  const {driver, artifactDefinitions, artifactState, phase, gatherMode, computedCache} = options;
   const priorPhase = phaseToPriorPhase[phase];
   const priorPhaseArtifacts = (priorPhase && artifactState[priorPhase]) || {};
 
@@ -76,7 +77,7 @@ async function collectPhaseArtifacts(options) {
         gatherMode,
         driver,
         dependencies,
-        computedCache: new Map(),
+        computedCache,
       });
     });
 

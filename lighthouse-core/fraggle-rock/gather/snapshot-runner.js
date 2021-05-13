@@ -21,6 +21,8 @@ async function snapshot(options) {
   const driver = new Driver(options.page);
   await driver.connect();
 
+  /** @type {Map<string, LH.ArbitraryEqualityMap>} */
+  const computedCache = new Map();
   const url = await options.page.url();
 
   return Runner.run(
@@ -37,6 +39,7 @@ async function snapshot(options) {
         driver,
         artifactDefinitions,
         artifactState,
+        computedCache,
       });
 
       const artifacts = await awaitArtifacts(artifactState);
@@ -45,7 +48,7 @@ async function snapshot(options) {
     {
       url,
       config,
-      computedCache: new Map(),
+      computedCache,
     }
   );
 }

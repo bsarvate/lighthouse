@@ -85,6 +85,8 @@ declare global {
 
   type FlattenedPromise<A> = Promise<A extends Promise<infer X> ? X : A>;
 
+  type UnPromise<T> = T extends Promise<infer U> ? U : T
+
   /**
    * Split string `S` on delimiter `D`.
    * From https://github.com/microsoft/TypeScript/pull/40336#issue-476562046
