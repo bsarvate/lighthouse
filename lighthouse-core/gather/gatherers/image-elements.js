@@ -10,10 +10,11 @@
 'use strict';
 
 const log = require('lighthouse-logger');
-const Gatherer = require('./gatherer.js');
+const FRGatherer = require('../../fraggle-rock/gather/base-gatherer.js');
 const pageFunctions = require('../../lib/page-functions.js');
-const Driver = require('../driver.js'); // eslint-disable-line no-unused-vars
+const DevtoolsLog = require('./devtools-log.js');
 const FontSize = require('./seo/font-size.js');
+const NetworkRecords = require('../../computed/network-records.js');
 
 /* global window, getElementsInDocument, Image, getNodeDetails, ShadowRoot */
 
@@ -221,7 +222,13 @@ function getEffectiveSizingRule({attributesStyle, inlineStyle, matchedCSSRules},
   return null;
 }
 
-class ImageElements extends Gatherer {
+class ImageElements extends FRGatherer {
+  /** @type {LH.Gatherer.GathererMeta<'DevtoolsLog'>} */
+  meta = {
+    supportedModes: ['snapshot', 'navigation'],
+    dependencies: {DevtoolsLog: DevtoolsLog.symbol},
+  };
+
   constructor() {
     super();
     /** @type {Map<string, {naturalWidth: number, naturalHeight: number}>} */
@@ -229,7 +236,7 @@ class ImageElements extends Gatherer {
   }
 
   /**
-   * @param {Driver} driver
+   * @param {LH.Gatherer.FRTransitionalDriver} driver
    * @param {LH.Artifacts.ImageElement} element
    */
   async fetchElementWithSizeInformation(driver, element) {
@@ -240,7 +247,7 @@ class ImageElements extends Gatherer {
 
     try {
       // We don't want this to take forever, 250ms should be enough for images that are cached
-      driver.setNextProtocolTimeout(250);
+      driver.defaultSession.setNextProtocolTimeout(250);
       const size = await driver.executionContext.evaluate(determineNaturalSize, {
         args: [url],
       });
@@ -256,18 +263,18 @@ class ImageElements extends Gatherer {
    * Images might be sized via CSS. In order to compute unsized-images failures, we need to collect
    * matched CSS rules to see if this is the case.
    * @url http://go/dwoqq (googlers only)
-   * @param {Driver} driver
+   * @param {LH.Gatherer.FRProtocolSession} session
    * @param {string} devtoolsNodePath
    * @param {LH.Artifacts.ImageElement} element
    */
-  async fetchSourceRules(driver, devtoolsNodePath, element) {
+  async fetchSourceRules(session, devtoolsNodePath, element) {
     try {
-      const {nodeId} = await driver.sendCommand('DOM.pushNodeByPathToFrontend', {
+      const {nodeId} = await session.sendCommand('DOM.pushNodeByPathToFrontend', {
         path: devtoolsNodePath,
       });
       if (!nodeId) return;
 
-      const matchedRules = await driver.sendCommand('CSS.getMatchedStylesForNode', {
+      const matchedRules = await session.sendCommand('CSS.getMatchedStylesForNode', {
         nodeId: nodeId,
       });
       const width = getEffectiveSizingRule(matchedRules, 'width');
@@ -284,13 +291,10 @@ class ImageElements extends Gatherer {
   }
 
   /**
-   * @param {LH.Gatherer.PassContext} passContext
-   * @param {LH.Gatherer.LoadData} loadData
-   * @return {Promise<LH.Artifacts['ImageElements']>}
+   * @param {LH.Artifacts.NetworkRequest[]} networkRecords
    */
-  async afterPass(passContext, loadData) {
-    const driver = passContext.driver;
-    const indexedNetworkRecords = loadData.networkRecords.reduce((map, record) => {
+  indexNetworkRecords(networkRecords) {
+    return networkRecords.reduce((map, record) => {
       // An image response in newer formats is sometimes incorrectly marked as "application/octet-stream",
       // so respect the extension too.
       const isImage = /^image/.test(record.mimeType) || /\.(avif|webp)$/i.test(record.url);
@@ -302,33 +306,15 @@ class ImageElements extends Gatherer {
 
       return map;
     }, /** @type {Object<string, LH.Artifacts.NetworkRequest>} */ ({}));
+  }
 
-    const elements = await driver.executionContext.evaluate(collectImageElementInfo, {
-      args: [],
-      deps: [
-        pageFunctions.getElementsInDocumentString,
-        pageFunctions.getBoundingClientRectString,
-        pageFunctions.getNodeDetailsString,
-        getClientRect,
-        getPosition,
-        getHTMLImages,
-        getCSSImages,
-      ],
-    });
-
-    await Promise.all([
-      driver.sendCommand('DOM.enable'),
-      driver.sendCommand('CSS.enable'),
-      driver.sendCommand('DOM.getDocument', {depth: -1, pierce: true}),
-    ]);
-
-    // Sort (in-place) as largest images descending
-    elements.sort((a, b) => {
-      const aRecord = indexedNetworkRecords[a.src] || {};
-      const bRecord = indexedNetworkRecords[b.src] || {};
-      return bRecord.resourceSize - aRecord.resourceSize;
-    });
-
+  /**
+   *
+   * @param {LH.Gatherer.FRTransitionalDriver} driver
+   * @param {LH.Artifacts.ImageElement[]} elements
+   * @param {Record<string, LH.Artifacts.NetworkRequest>} indexedNetworkRecords
+   */
+  async collectExtraDetails(driver, elements, indexedNetworkRecords) {
     // Don't do more than 5s of this expensive devtools protocol work. See #11289
     let reachedGatheringBudget = false;
     setTimeout(_ => (reachedGatheringBudget = true), 5000);
@@ -346,7 +332,7 @@ class ImageElements extends Gatherer {
 
       // Need source rules to determine if sized via CSS (for unsized-images).
       if (!element.isInShadowDOM && !element.isCss) {
-        await this.fetchSourceRules(driver, element.node.devtoolsNodePath, element);
+        await this.fetchSourceRules(driver.defaultSession, element.node.devtoolsNodePath, element);
       }
       // Images within `picture` behave strangely and natural size information isn't accurate,
       // CSS images have no natural size information at all. Try to get the actual size if we can.
@@ -359,13 +345,71 @@ class ImageElements extends Gatherer {
     if (reachedGatheringBudget) {
       log.warn('ImageElements', `Reached gathering budget of 5s. Skipped extra details for ${skippedCount}/${elements.length}`); // eslint-disable-line max-len
     }
+  }
+
+  /**
+   * @param {LH.Gatherer.FRTransitionalContext} context
+   * @param {LH.Artifacts.NetworkRequest[]} networkRecords
+   * @return {Promise<LH.Artifacts['ImageElements']>}
+   */
+  async _getArtifact(context, networkRecords) {
+    const session = context.driver.defaultSession;
+    const executionContext = context.driver.executionContext;
+    const indexedNetworkRecords = this.indexNetworkRecords(networkRecords);
+
+    const elements = await executionContext.evaluate(collectImageElementInfo, {
+      args: [],
+      deps: [
+        pageFunctions.getElementsInDocumentString,
+        pageFunctions.getBoundingClientRectString,
+        pageFunctions.getNodeDetailsString,
+        getClientRect,
+        getPosition,
+        getHTMLImages,
+        getCSSImages,
+      ],
+    });
 
     await Promise.all([
-      driver.sendCommand('DOM.disable'),
-      driver.sendCommand('CSS.disable'),
+      session.sendCommand('DOM.enable'),
+      session.sendCommand('CSS.enable'),
+      session.sendCommand('DOM.getDocument', {depth: -1, pierce: true}),
+    ]);
+
+    // Sort (in-place) as largest images descending
+    elements.sort((a, b) => {
+      const aRecord = indexedNetworkRecords[a.src] || {};
+      const bRecord = indexedNetworkRecords[b.src] || {};
+      return bRecord.resourceSize - aRecord.resourceSize;
+    });
+
+    await this.collectExtraDetails(context.driver, elements, indexedNetworkRecords);
+
+    await Promise.all([
+      session.sendCommand('DOM.disable'),
+      session.sendCommand('CSS.disable'),
     ]);
 
     return elements;
+  }
+
+  /**
+   * @param {LH.Gatherer.FRTransitionalContext<'DevtoolsLog'>} context
+   * @return {Promise<LH.Artifacts['ImageElements']>}
+   */
+  async getArtifact(context) {
+    const devtoolsLog = context.dependencies.DevtoolsLog;
+    const networkRecords = await NetworkRecords.request(devtoolsLog, context);
+    return this._getArtifact(context, networkRecords);
+  }
+
+  /**
+   * @param {LH.Gatherer.PassContext} passContext
+   * @param {LH.Gatherer.LoadData} loadData
+   * @return {Promise<LH.Artifacts['ImageElements']>}
+   */
+  async afterPass(passContext, loadData) {
+    return this._getArtifact({...passContext, dependencies: {}}, loadData.networkRecords);
   }
 }
 
