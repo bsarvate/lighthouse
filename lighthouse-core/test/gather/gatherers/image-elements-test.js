@@ -178,7 +178,7 @@ describe('.collectExtraDetails', () => {
     expect(gatherer.fetchSourceRules).toHaveBeenCalledTimes(1);
   });
 
-  it('fetch source rules for unsized images', () => {
+  it('fetch source rules to determine sizing for non-shadow DOM/non-CSS images', () => {
     const elements = [
       {node: {}, isInShadowDOM: false, isCss: false},
       {node: {}, isInShadowDOM: true, isCss: false},
