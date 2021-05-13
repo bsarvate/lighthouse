@@ -322,8 +322,8 @@ class ImageElements extends FRGatherer {
 
     for (const element of elements) {
       // Pull some of our information directly off the network record.
-      const networkRecord = indexedNetworkRecords[element.src] || {};
-      element.mimeType = networkRecord.mimeType;
+      const networkRecord = indexedNetworkRecords[element.src];
+      element.mimeType = networkRecord && networkRecord.mimeType;
 
       if (reachedGatheringBudget) {
         skippedCount++;

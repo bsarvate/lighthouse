@@ -206,11 +206,11 @@ describe('.collectExtraDetails', () => {
 
   it('fetch size information for image with picture', async () => {
     const elements = [
-      {node: {}, src: 'https://example.com/a.png', isPicture: true, isCss: true, srcset: 'src'},
-      {node: {}, src: 'https://example.com/b.png', isPicture: false, isCss: true, srcset: 'src'},
-      {node: {}, src: 'https://example.com/c.png', isPicture: true, isCss: false, srcset: 'src'},
-      {node: {}, src: 'https://example.com/d.png', isPicture: true, isCss: true},
-      {node: {}, src: 'https://example.com/e.png', isPicture: true, isCss: true, srcset: 'src'},
+      {node: {}, src: 'https://example.com/a.png', isPicture: false, isCss: true, srcset: 'src'},
+      {node: {}, src: 'https://example.com/b.png', isPicture: true, isCss: false, srcset: 'src'},
+      {node: {}, src: 'https://example.com/c.png', isPicture: false, isCss: true},
+      {node: {}, src: 'https://example.com/d.png', isPicture: false, isCss: false},
+      {node: {}, src: 'https://example.com/e.png', isPicture: false, isCss: true, srcset: 'src'},
     ];
     const indexedNetworkRecords = {
       'https://example.com/a.png': {},
@@ -221,8 +221,10 @@ describe('.collectExtraDetails', () => {
 
     await gatherer.collectExtraDetails({}, elements, indexedNetworkRecords);
 
-    expect(gatherer.fetchElementWithSizeInformation).toHaveBeenCalledTimes(1);
-    expect(gatherer.fetchElementWithSizeInformation).toHaveBeenCalledWith({}, elements[0]);
+    expect(gatherer.fetchElementWithSizeInformation).toHaveBeenCalledTimes(3);
+    expect(gatherer.fetchElementWithSizeInformation).toHaveBeenNthCalledWith(1, {}, elements[0]);
+    expect(gatherer.fetchElementWithSizeInformation).toHaveBeenNthCalledWith(2, {}, elements[1]);
+    expect(gatherer.fetchElementWithSizeInformation).toHaveBeenNthCalledWith(3, {}, elements[2]);
   });
 });
 
