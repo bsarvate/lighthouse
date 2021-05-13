@@ -305,8 +305,6 @@ class PerformanceCategoryRenderer extends CategoryRenderer {
     const metricFilterEl = this.dom.createElement('div', 'lh-metricfilter');
     const textEl = this.dom.createChildOf(metricFilterEl, 'span', 'lh-metricfilter__text');
     textEl.textContent = 'Show audits relevant to: ';
-    const labelSelectors = [];
-    const auditSelectors = [];
 
     const filterChoices = /** @type {LH.ReportResult.AuditRef[]} */ ([
       ({acronym: 'All'}),
@@ -326,41 +324,33 @@ class PerformanceCategoryRenderer extends CategoryRenderer {
         title: metric.result && metric.result.title,
       });
       labelEl.textContent = metric.acronym || metric.id;
+
       if (metric.acronym === 'All') {
         radioEl.checked = true;
+        labelEl.classList.add('lh-metricfilter__label--active');
       }
-      // Dynamically write some CSS, for the CSS-only filtering
-      labelSelectors.push(`.lh-metricfilter__radio#${elemId}:checked ~ .lh-metricfilter > .lh-metricfilter__label[for="${elemId}"]`); // eslint-disable-line max-len
-      if (metric.relevantAudits) {
-        /* Generate some CSS selectors like this:
-            #metric-CLS:checked ~ .lh-audit-group > #layout-shift-elements,
-            #metric-CLS:checked ~ .lh-audit-group > #non-composited-animations,
-            #metric-CLS:checked ~ .lh-audit-group > #unsized-images
-        */
-        auditSelectors.push(metric.relevantAudits.map(auditId => `#${elemId}:checked ~ .lh-audit-group > #${auditId}`).join(',\n')); // eslint-disable-line max-len
-      }
-    }
+      categoryEl.append(metricFilterEl);
 
-    const styleEl = this.dom.createChildOf(metricFilterEl, 'style');
-    // eslint-disable-next-line max-len
-    styleEl.textContent = `
-${labelSelectors.join(',\n')} {
-  background: var(--color-blue-A700);
-  color: var(--color-white);
-}
-/* If selecting non-All, hide all audits (and also the group header/description… */
-.lh-metricfilter__radio:checked:not(#metric-All) ~ .lh-audit-group .lh-audit,
-.lh-metricfilter__radio:checked:not(#metric-All) ~ .lh-audit-group .lh-audit-group__description,
-.lh-metricfilter__radio:checked:not(#metric-All) ~ .lh-audit-group .lh-audit-group__itemcount {
-  display: none;
-}
-/* …And then display:block the relevant ones */
-${auditSelectors.join(',\n')} {
-  display: block;
-}
-/*# sourceURL=metricfilter.css */
-    `;
-    categoryEl.append(metricFilterEl);
+      // Toggle class/hidden state based on filter choice.
+      radioEl.addEventListener('input', _ => {
+        categoryEl.querySelectorAll('label.lh-metricfilter__label').forEach(elem => {
+          elem.classList.toggle('lh-metricfilter__label--active', elem.htmlFor === elemId);
+        });
+        categoryEl.classList.toggle('lh-category--filtered', metric.acronym !== 'All');
+
+        for (const perfAuditEl of categoryEl.querySelectorAll('div.lh-audit')) {
+          if (metric.acronym === 'All') {
+            perfAuditEl.hidden = false;
+            return;
+          }
+
+          perfAuditEl.hidden = true;
+          if (metric.relevantAudits && metric.relevantAudits.includes(perfAuditEl.id)) {
+            perfAuditEl.hidden = false;
+          }
+        }
+      });
+    }
   }
 }
 
