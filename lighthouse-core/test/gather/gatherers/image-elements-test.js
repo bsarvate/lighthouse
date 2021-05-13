@@ -10,7 +10,7 @@
 const ImageElements = require('../../../gather/gatherers/image-elements.js');
 const NetworkRecorder = require('../../../lib/network-recorder.js');
 const NetworkRequest = require('../../../lib/network-request.js');
-const {createMockContext, createMockDriver} = require('../../fraggle-rock/gather/mock-driver.js');
+const {createMockContext, createMockDriver, createMockSession} = require('../../fraggle-rock/gather/mock-driver.js');
 
 const devtoolsLog = /** @type {LH.DevtoolsLog} */ (require('../../fixtures/traces/lcp-m78.devtools.log.json')); // eslint-disable-line max-len
 const networkRecords = NetworkRecorder.recordsFromLogs(devtoolsLog);
@@ -26,8 +26,8 @@ function mockRequest(partial = {}) {
   return Object.assign(request, partial);
 }
 
-/** @type {LH.Artifacts.ImageElement} */
-const mockEl = {
+/** @return {LH.Artifacts.ImageElement} */
+const mockEl = () => ({
   src: 'https://www.paulirish.com/avatar150.jpg',
   srcset: '',
   displayedWidth: 200,
@@ -64,7 +64,7 @@ const mockEl = {
       height: 200,
     },
   },
-};
+});
 
 function mockImageElements() {
   const gatherer = new ImageElements();
@@ -75,6 +75,109 @@ function mockImageElements() {
   jest.spyOn(gatherer, 'fetchElementWithSizeInformation');
   return gatherer;
 }
+
+describe('.fetchSourceRules', () => {
+  let gatherer = mockImageElements();
+  let session = createMockSession();
+
+  beforeEach(() => {
+    gatherer = mockImageElements();
+    session = createMockSession();
+  })
+
+  it('handles no node found error', async () => {
+    session.sendCommand.mockImplementationOnce(() => {
+      throw Error('No node found');
+    })
+
+    const returnPromise = gatherer.fetchSourceRules(session.asSession(), '1,HTML,1,BODY,1,IMG', mockEl());
+    await expect(returnPromise).resolves.not.toThrow();
+  });
+
+  it('gets sizes from inline style', async () => {
+    session.sendCommand
+      .mockResponse('DOM.pushNodeByPathToFrontend', {nodeId: 1})
+      .mockResponse('CSS.getMatchedStylesForNode', {inlineStyle: {cssProperties: [
+        {name: 'width', value: '200px'},
+        {name: 'height', value: '200px'},
+        {name: 'aspect-ratio', value: '1 / 1'},
+      ]}});
+
+    const element = mockEl();
+    await gatherer.fetchSourceRules(session.asSession(), '1,HTML,1,BODY,1,IMG', element);
+
+    expect(element).toMatchObject({
+      cssWidth: '200px',
+      cssHeight: '200px',
+      _privateCssSizing: {
+        width: '200px',
+        height: '200px',
+        aspectRatio: '1 / 1',
+      }
+    });
+  });
+
+  it('gets sizes from attributes', async () => {
+    session.sendCommand
+      .mockResponse('DOM.pushNodeByPathToFrontend', {nodeId: 1})
+      .mockResponse('CSS.getMatchedStylesForNode', {attributesStyle: {cssProperties: [
+        {name: 'width', value: '200px'},
+        {name: 'height', value: '200px'},
+      ]}});
+
+    const element = mockEl();
+    await gatherer.fetchSourceRules(session.asSession(), '1,HTML,1,BODY,1,IMG', element);
+
+    expect(element).toMatchObject({
+      cssWidth: '200px',
+      cssHeight: '200px',
+      _privateCssSizing: {
+        width: '200px',
+        height: '200px',
+        aspectRatio: null,
+      }
+    });
+  });
+
+  it('gets sizes from matching CSS rules', async () => {
+    session.sendCommand
+      .mockResponse('DOM.pushNodeByPathToFrontend', {nodeId: 1})
+      .mockResponse('CSS.getMatchedStylesForNode', {matchedCSSRules: [
+        {
+          rule: {
+            selectorList: {selectors: [{text: 'img'}]},
+            style: {cssProperties: [
+              {name: 'width', value: '200px'},
+              {name: 'height', value: '200px'},
+            ]}
+          },
+          matchingSelectors: [0],
+        },
+        {
+          rule: {
+            selectorList: {selectors: [{text: '.classy'}]},
+            style: {cssProperties: [
+              {name: 'aspect-ratio', value: '1 / 1'},
+            ]}
+          },
+          matchingSelectors: [0],
+        },
+      ]});
+
+    const element = mockEl();
+    await gatherer.fetchSourceRules(session.asSession(), '1,HTML,1,BODY,1,IMG', element);
+
+    expect(element).toMatchObject({
+      cssWidth: '200px',
+      cssHeight: '200px',
+      _privateCssSizing: {
+        width: '200px',
+        height: '200px',
+        aspectRatio: '1 / 1',
+      }
+    });
+  });
+});
 
 describe('.indexNetworkRecords', () => {
   it('maps image urls to network records', () => {
@@ -172,9 +275,9 @@ describe('.collectExtraDetails', () => {
 
   it('respects the overall time budget for source rules', async () => {
     const elements = [
-      {...mockEl, isInShadowDOM: false, isCss: false},
-      {...mockEl, isInShadowDOM: false, isCss: false},
-      {...mockEl, isInShadowDOM: false, isCss: false},
+      {...mockEl(), isInShadowDOM: false, isCss: false},
+      {...mockEl(), isInShadowDOM: false, isCss: false},
+      {...mockEl(), isInShadowDOM: false, isCss: false},
     ];
     gatherer.fetchSourceRules = jest.fn().mockImplementation(async () => {
       jest.advanceTimersByTime(6000);
@@ -187,9 +290,9 @@ describe('.collectExtraDetails', () => {
 
   it('fetch source rules to determine sizing for non-shadow DOM/non-CSS images', async () => {
     const elements = [
-      {...mockEl, isInShadowDOM: false, isCss: false},
-      {...mockEl, isInShadowDOM: true, isCss: false},
-      {...mockEl, isInShadowDOM: false, isCss: true},
+      {...mockEl(), isInShadowDOM: false, isCss: false},
+      {...mockEl(), isInShadowDOM: true, isCss: false},
+      {...mockEl(), isInShadowDOM: false, isCss: true},
     ];
 
     await gatherer.collectExtraDetails(driver, elements, {});
@@ -199,8 +302,8 @@ describe('.collectExtraDetails', () => {
 
   it('fetch multiple source rules to determine sizing for non-shadow DOM/non-CSS images', async () => {
     const elements = [
-      {...mockEl, isInShadowDOM: false, isCss: false},
-      {...mockEl, isInShadowDOM: false, isCss: false},
+      {...mockEl(), isInShadowDOM: false, isCss: false},
+      {...mockEl(), isInShadowDOM: false, isCss: false},
     ];
 
     await gatherer.collectExtraDetails(driver, elements, {});
@@ -210,11 +313,11 @@ describe('.collectExtraDetails', () => {
 
   it('fetch size information for image with picture', async () => {
     const elements = [
-      {...mockEl, src: 'https://example.com/a.png', isPicture: false, isCss: true, srcset: 'src'},
-      {...mockEl, src: 'https://example.com/b.png', isPicture: true, isCss: false, srcset: 'src'},
-      {...mockEl, src: 'https://example.com/c.png', isPicture: false, isCss: true},
-      {...mockEl, src: 'https://example.com/d.png', isPicture: false, isCss: false},
-      {...mockEl, src: 'https://example.com/e.png', isPicture: false, isCss: true, srcset: 'src'},
+      {...mockEl(), src: 'https://example.com/a.png', isPicture: false, isCss: true, srcset: 'src'},
+      {...mockEl(), src: 'https://example.com/b.png', isPicture: true, isCss: false, srcset: 'src'},
+      {...mockEl(), src: 'https://example.com/c.png', isPicture: false, isCss: true},
+      {...mockEl(), src: 'https://example.com/d.png', isPicture: false, isCss: false},
+      {...mockEl(), src: 'https://example.com/e.png', isPicture: false, isCss: true, srcset: 'src'},
     ];
     const indexedNetworkRecords = {
       'https://example.com/a.png': mockRequest(),
@@ -244,14 +347,14 @@ describe('FR compat', () => {
       ]}})
       .mockResponse('CSS.disable')
       .mockResponse('DOM.disable');
-    mockContext.driver._executionContext.evaluate.mockReturnValue([mockEl]);
+    mockContext.driver._executionContext.evaluate.mockReturnValue([mockEl()]);
 
     const artifact = await gatherer.afterPass(mockContext.asLegacyContext(), {
       devtoolsLog,
       networkRecords,
     });
 
-    expect(artifact).toEqual([{
+    expect(artifact).toMatchObject([{
       ...mockEl,
       cssWidth: '200px',
       cssHeight: '200px',
@@ -277,14 +380,14 @@ describe('FR compat', () => {
       ]}})
       .mockResponse('CSS.disable')
       .mockResponse('DOM.disable');
-    mockContext.driver._executionContext.evaluate.mockReturnValue([mockEl]);
+    mockContext.driver._executionContext.evaluate.mockReturnValue([mockEl()]);
 
     const artifact = await gatherer.getArtifact({
       ...mockContext.asContext(),
       dependencies: {DevtoolsLog: devtoolsLog},
     });
 
-    expect(artifact).toEqual([{
+    expect(artifact).toMatchObject([{
       ...mockEl,
       cssWidth: '200px',
       cssHeight: '200px',
