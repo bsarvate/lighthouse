@@ -163,7 +163,7 @@ describe('.collectExtraDetails', () => {
     gatherer.fetchElementWithSizeInformation.mockImplementation();
   });
 
-  it('times out', () => {
+  it('respects the overall time budget for source rules', () => {
     const elements = [
       {node: {}, isInShadowDOM: false, isCss: false},
       {node: {}, isInShadowDOM: false, isCss: false},
