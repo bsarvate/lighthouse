@@ -243,6 +243,7 @@ class ImageElements extends FRGatherer {
     const url = element.src;
     if (this._naturalSizeCache.has(url)) {
       Object.assign(element, this._naturalSizeCache.get(url));
+      return;
     }
 
     try {

@@ -76,6 +76,60 @@ function mockImageElements() {
   return gatherer;
 }
 
+describe('.fetchElementsWithSizingInformation', () => {
+  let gatherer = mockImageElements();
+  let driver = createMockDriver();
+  beforeEach(() => {
+    gatherer = mockImageElements();
+    driver = createMockDriver();
+  })
+
+  it('uses natural dimensions from cache if possible', async () => {
+    const element = mockEl();
+    gatherer._naturalSizeCache.set(element.src, {
+      naturalWidth: 200,
+      naturalHeight: 200,
+    });
+
+    await gatherer.fetchElementWithSizeInformation(driver.asDriver(), element);
+
+    expect(driver._executionContext.evaluate).not.toHaveBeenCalled();
+    expect(element).toMatchObject({
+      naturalWidth: 200,
+      naturalHeight: 200,
+    });
+  });
+
+  it('evaluates natural dimensions if not in cache', async () => {
+    const element = mockEl();
+    driver._executionContext.evaluate.mockReturnValue({
+      naturalWidth: 200,
+      naturalHeight: 200,
+    });
+
+    await gatherer.fetchElementWithSizeInformation(driver.asDriver(), element);
+
+    expect(gatherer._naturalSizeCache.get(element.src)).toEqual({
+      naturalWidth: 200,
+      naturalHeight: 200,
+    });
+    expect(element).toMatchObject({
+      naturalWidth: 200,
+      naturalHeight: 200,
+    });
+  });
+
+  it('handles error when calculating natural dimensions', async () => {
+    const element = mockEl();
+    driver._executionContext.evaluate.mockRejectedValue(new Error());
+
+    const returnPromise = gatherer.fetchElementWithSizeInformation(driver.asDriver(), element);
+
+    await expect(returnPromise).resolves.not.toThrow();
+    expect(element).toEqual(mockEl()); // Element unchanged
+  });
+});
+
 describe('.fetchSourceRules', () => {
   let gatherer = mockImageElements();
   let session = createMockSession();
