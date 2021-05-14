@@ -306,7 +306,7 @@ class ImageElements extends FRGatherer {
       }
 
       return map;
-    }, /** @type {Object<string, LH.Artifacts.NetworkRequest>} */ ({}));
+    }, /** @type {Record<string, LH.Artifacts.NetworkRequest>} */ ({}));
   }
 
   /**
@@ -377,7 +377,7 @@ class ImageElements extends FRGatherer {
       session.sendCommand('DOM.getDocument', {depth: -1, pierce: true}),
     ]);
 
-    // Sort (in-place) as largest images descending
+    // Sort (in-place) as largest images descending.
     elements.sort((a, b) => {
       const aRecord = indexedNetworkRecords[a.src] || {};
       const bRecord = indexedNetworkRecords[b.src] || {};
