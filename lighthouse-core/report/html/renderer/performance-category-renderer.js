@@ -339,7 +339,7 @@ class PerformanceCategoryRenderer extends CategoryRenderer {
         for (const perfAuditEl of categoryEl.querySelectorAll('div.lh-audit')) {
           if (metric.acronym === 'All') {
             perfAuditEl.hidden = false;
-            return;
+            continue;
           }
 
           perfAuditEl.hidden = true;
