@@ -98,7 +98,8 @@ describe('.fetchElementsWithSizingInformation', () => {
     await gatherer.fetchElementWithSizeInformation(driver.asDriver(), element);
 
     expect(driver._executionContext.evaluate).not.toHaveBeenCalled();
-    expect(element).toMatchObject({
+    expect(element).toEqual({
+      ...mockEl(),
       naturalWidth: 200,
       naturalHeight: 200,
     });
@@ -117,7 +118,8 @@ describe('.fetchElementsWithSizingInformation', () => {
       naturalWidth: 200,
       naturalHeight: 200,
     });
-    expect(element).toMatchObject({
+    expect(element).toEqual({
+      ...mockEl(),
       naturalWidth: 200,
       naturalHeight: 200,
     });
@@ -168,7 +170,8 @@ describe('.fetchSourceRules', () => {
     const element = mockEl();
     await gatherer.fetchSourceRules(session.asSession(), '1,HTML,1,BODY,1,IMG', element);
 
-    expect(element).toMatchObject({
+    expect(element).toEqual({
+      ...mockEl(),
       cssWidth: '200px',
       cssHeight: '200px',
       _privateCssSizing: {
@@ -190,7 +193,8 @@ describe('.fetchSourceRules', () => {
     const element = mockEl();
     await gatherer.fetchSourceRules(session.asSession(), '1,HTML,1,BODY,1,IMG', element);
 
-    expect(element).toMatchObject({
+    expect(element).toEqual({
+      ...mockEl(),
       cssWidth: '200px',
       cssHeight: '200px',
       _privateCssSizing: {
@@ -229,7 +233,8 @@ describe('.fetchSourceRules', () => {
     const element = mockEl();
     await gatherer.fetchSourceRules(session.asSession(), '1,HTML,1,BODY,1,IMG', element);
 
-    expect(element).toMatchObject({
+    expect(element).toEqual({
+      ...mockEl(),
       cssWidth: '200px',
       cssHeight: '200px',
       _privateCssSizing: {
@@ -267,25 +272,25 @@ describe('.indexNetworkRecords', () => {
 
     const index = gatherer.indexNetworkRecords(networkRecords);
 
-    expect(index).toMatchObject({
-      'https://example.com/img.avif': {
+    expect(index).toEqual({
+      'https://example.com/img.avif': mockRequest({
         finished: true,
         mimeType: 'application/octect-stream',
         statusCode: 200,
         url: 'https://example.com/img.avif',
-      },
-      'https://example.com/img.png': {
+      }),
+      'https://example.com/img.png': mockRequest({
         finished: true,
         mimeType: 'image/png',
         statusCode: 200,
         url: 'https://example.com/img.png',
-      },
-      'https://example.com/img.webp': {
+      }),
+      'https://example.com/img.webp': mockRequest({
         finished: true,
         mimeType: 'application/octect-stream',
         statusCode: 200,
         url: 'https://example.com/img.webp',
-      },
+      }),
     });
   });
 
@@ -313,13 +318,13 @@ describe('.indexNetworkRecords', () => {
 
     const index = gatherer.indexNetworkRecords(networkRecords);
 
-    expect(index).toMatchObject({
-      'https://example.com/img.png': {
+    expect(index).toEqual({
+      'https://example.com/img.png': mockRequest({
         finished: true,
         mimeType: 'image/png',
         statusCode: 200,
         url: 'https://example.com/img.png',
-      },
+      }),
     });
   });
 });
@@ -416,8 +421,9 @@ describe('FR compat', () => {
       networkRecords,
     });
 
-    expect(artifact).toMatchObject([{
+    expect(artifact).toEqual([{
       ...mockEl(),
+      mimeType: 'image/jpeg',
       cssWidth: '200px',
       cssHeight: '200px',
       _privateCssSizing: {
@@ -449,8 +455,9 @@ describe('FR compat', () => {
       dependencies: {DevtoolsLog: devtoolsLog},
     });
 
-    expect(artifact).toMatchObject([{
+    expect(artifact).toEqual([{
       ...mockEl(),
+      mimeType: 'image/jpeg',
       cssWidth: '200px',
       cssHeight: '200px',
       _privateCssSizing: {
