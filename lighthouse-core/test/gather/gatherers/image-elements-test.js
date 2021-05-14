@@ -417,7 +417,7 @@ describe('FR compat', () => {
     });
 
     expect(artifact).toMatchObject([{
-      ...mockEl,
+      ...mockEl(),
       cssWidth: '200px',
       cssHeight: '200px',
       _privateCssSizing: {
@@ -450,7 +450,7 @@ describe('FR compat', () => {
     });
 
     expect(artifact).toMatchObject([{
-      ...mockEl,
+      ...mockEl(),
       cssWidth: '200px',
       cssHeight: '200px',
       _privateCssSizing: {
