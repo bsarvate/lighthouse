@@ -596,10 +596,16 @@ class TreemapViewer {
         backgroundColor = depthOneNodeColor;
       }
 
+      if (this.currentViewMode.id === 'unused-bytes' && hue) {
+        const pctUsed = (1 - (node.unusedBytes || 0) / node.resourceBytes) * 100;
+        const darkerColor = TreemapUtil.hsl(hue || 0, 60, 83);
+        backgroundColor = `linear-gradient(to right, ${depthOneNodeColor} ${pctUsed}%, ${darkerColor} ${pctUsed}%)`;
+      }
+
       // @ts-ignore: webtreemap will add a dom node property to every node.
       const dom = /** @type {HTMLElement?} */ (node.dom);
       if (dom) {
-        dom.style.backgroundColor = backgroundColor;
+        dom.style.background = backgroundColor;
       }
     });
   }
