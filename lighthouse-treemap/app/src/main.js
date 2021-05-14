@@ -603,7 +603,8 @@ class TreemapViewer {
       // Set a bicolor background to communicate unused-bytes
       if (this.currentViewMode.id === 'unused-bytes' && hue) {
         const pctUsed = (1 - (node.unusedBytes || 0) / node.resourceBytes) * 100;
-        const lightness = 60 + (pctUsed / 100 * 40)
+        // Scale the contrast of the darkrer color  based on used percentage
+        const lightness = 65 + (pctUsed / 100 * 35);
         const darkerColor = TreemapUtil.hsl(hue || 0, 60, lightness);
         const gradient = `linear-gradient(to right, ${depthOneNodeColor} ${pctUsed}%, ${darkerColor} ${pctUsed}%)`; // eslint-disable-line max-len
         dom.style.background = gradient;
