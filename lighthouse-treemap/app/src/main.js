@@ -581,14 +581,11 @@ class TreemapViewer {
         this.getHueForD1NodeName(depthOneNode ? depthOneNode.name : node.name);
       const depthOneNodeColor = hue !== undefined ? this.getColorFromHue(hue) : 'white';
 
+      // @ts-ignore: webtreemap will add a dom node property to every node.
+      const dom = /** @type {HTMLElement?} */ (node.dom);
+      if (!dom) return;
+
       let backgroundColor;
-
-      if (this.currentViewMode.id === 'unused-bytes' && hue) {
-        const pctUsed = (1 - (node.unusedBytes || 0) / node.resourceBytes) * 100;
-        const darkerColor = TreemapUtil.hsl(hue || 0, 60, 83);
-        // backgroundColor = `linear-gradient(to right, ${depthOneNodeColor} ${pctUsed}%, ${darkerColor} ${pctUsed}%)`;
-      }
-
       if (this.currentViewMode.highlights) {
         // A view can set nodes to highlight. If so, don't color anything else.
         const path = this.nodeToPathMap.get(node);
@@ -596,11 +593,6 @@ class TreemapViewer {
           .find(highlight => TreemapUtil.pathsAreEqual(path, highlight.path));
         if (highlight) {
           backgroundColor = highlight.color || depthOneNodeColor;
-
-          const pctUsed = (1 - (node.unusedBytes || 0) / node.resourceBytes) * 100;
-        const darkerColor = TreemapUtil.hsl(hue || 0, 60, 83);
-        backgroundColor = `linear-gradient(to right, ${depthOneNodeColor} ${pctUsed}%, ${darkerColor} ${pctUsed}%)`;
-
         } else {
           backgroundColor = 'white';
         }
@@ -608,10 +600,16 @@ class TreemapViewer {
         backgroundColor = depthOneNodeColor;
       }
 
-      // @ts-ignore: webtreemap will add a dom node property to every node.
-      const dom = /** @type {HTMLElement?} */ (node.dom);
-      if (dom) {
-        dom.style.background = backgroundColor;
+      // Set a bicolor background to communicate unused-bytes
+      if (this.currentViewMode.id === 'unused-bytes' && hue) {
+        const pctUsed = (1 - (node.unusedBytes || 0) / node.resourceBytes) * 100;
+        const lightness = 60 + (pctUsed / 100 * 40)
+        const darkerColor = TreemapUtil.hsl(hue || 0, 60, lightness);
+        const gradient = `linear-gradient(to right, ${depthOneNodeColor} ${pctUsed}%, ${darkerColor} ${pctUsed}%)`; // eslint-disable-line max-len
+        dom.style.background = gradient;
+      } else {
+        dom.style.background = '';
+        dom.style.backgroundColor = backgroundColor;
       }
     });
   }
