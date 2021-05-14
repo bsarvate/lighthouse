@@ -438,7 +438,7 @@ describe('FR compat', () => {
     ]);
   });
 
-  it('uses dependencies in legacy mode', async () => {
+  it('uses dependencies in FR', async () => {
     const gatherer = new ImageElements();
     const mockContext = createMockContext();
     mockContext.driver.defaultSession.sendCommand
