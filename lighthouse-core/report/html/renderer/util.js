@@ -539,6 +539,8 @@ Util.UIStrings = {
   varianceDisclaimer: 'Values are estimated and may vary. The [performance score is calculated](https://web.dev/performance-scoring/) directly from these metrics.',
   /** Text link pointing to an interactive calculator that explains Lighthouse scoring. The link text should be fairly short. */
   calculatorLink: 'See calculator.',
+  /** Label preceding a radio control for filtering the list of audits. The radio choices are various performance metrics (FCP, LCP, TBT), and if chosen, the audits in the report are hidden if they are not relevant to the selected metric. */
+  showRelevantAudits: 'Show audits relevant to: ',
   /** Column heading label for the listing of opportunity audits. Each audit title represents an opportunity. There are only 2 columns, so no strict character limit.  */
   opportunityResourceColumnLabel: 'Opportunity',
   /** Column heading label for the estimated page load savings of opportunity audits. Estimated Savings is the total amount of time (in seconds) that Lighthouse computed could be reduced from the total page load time, if the suggested action is taken. There are only 2 columns, so no strict character limit. */

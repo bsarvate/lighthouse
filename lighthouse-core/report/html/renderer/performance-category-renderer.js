@@ -303,7 +303,7 @@ class PerformanceCategoryRenderer extends CategoryRenderer {
   renderMetricAuditFilter(filterableMetrics, categoryEl) {
     const metricFilterEl = this.dom.createElement('div', 'lh-metricfilter');
     const textEl = this.dom.createChildOf(metricFilterEl, 'span', 'lh-metricfilter__text');
-    textEl.textContent = 'Show audits relevant to: ';
+    textEl.textContent = Util.i18n.strings.showRelevantAudits;
 
     const filterChoices = /** @type {LH.ReportResult.AuditRef[]} */ ([
       ({acronym: 'All'}),
