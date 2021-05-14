@@ -1703,15 +1703,6 @@
   "lighthouse-core/config/default-config.js | seoMobileGroupTitle": {
     "message": "Für Mobilgeräte optimiert"
   },
-  "lighthouse-core/gather/gather-runner.js | warningRedirected": {
-    "message": "Die Seite lädt möglicherweise nicht wie erwartet, weil Ihre Test-URL ({requested}) auf {final} weitergeleitet wurde. Versuchen Sie, die zweite URL direkt zu testen."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningSlowHostCpu": {
-    "message": "Das getestete Gerät hat eine langsamere CPU, als für Lighthouse erforderlich ist. Dies kann sich negativ auf die Leistungsbewertung auswirken. [Hier finden Sie weitere Informationen zur Kalibrierung eines geeigneten CPU-Verlangsamungsmultiplikators.](https://github.com/GoogleChrome/lighthouse/blob/master/docs/throttling.md#cpu-throttling)"
-  },
-  "lighthouse-core/gather/gather-runner.js | warningTimeout": {
-    "message": "Diese Seite wurde nicht innerhalb der Zeitbegrenzung geladen. Daher sind die Ergebnisse möglicherweise unvollständig."
-  },
   "lighthouse-core/lib/csp-evaluator.js | allowlistFallback": {
     "message": "Sie können „https:“- und „http“:-URL-Schemas hinzufügen (wird von Browsern ignoriert, die „strict-dynamic“ unterstützen), um mit älteren Browsern kompatibel zu sein."
   },

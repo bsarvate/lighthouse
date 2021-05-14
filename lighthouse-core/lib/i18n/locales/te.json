@@ -1703,15 +1703,6 @@
   "lighthouse-core/config/default-config.js | seoMobileGroupTitle": {
     "message": "మొబైల్-అనుకూలం"
   },
-  "lighthouse-core/gather/gather-runner.js | warningRedirected": {
-    "message": "మీ పరీక్ష URL ({requested})ను {final}కు మళ్లించినందున, పేజీ అనుకున్న విధంగా లోడ్ కాలేకపోతుండవచ్చు. నేరుగా రెండవ URLను పరీక్షించడం ట్రై చేయండి."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningSlowHostCpu": {
-    "message": "పరీక్షించిన పరికరం Lighthouse ఆశించే దాని కంటే తక్కువ CPUని కలిగి ఉన్నట్లుంది. మీ పనితీరు స్కోర్‌పై ఇది ప్రతికూల ప్రభావం చూపగలదు. [సముచిత CPU నెమ్మది చలనం మల్టీప్లయర్‌ను క్యాలిబ్రేట్ చేయడం](https://github.com/GoogleChrome/lighthouse/blob/master/docs/throttling.md#cpu-throttling) గురించి మరింత తెలుసుకోండి."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningTimeout": {
-    "message": "సమయ పరిమితి లోపల పూర్తి కావడానికి పేజీ మరీ నిదానంగా లోడ్ అయ్యింది. ఫలితాలు సంపూర్ణంగా ఉండకపోవచ్చు."
-  },
   "lighthouse-core/lib/csp-evaluator.js | allowlistFallback": {
     "message": "పాత బ్రౌజర్‌లతో అనుకూలంగా ఉండటానికి https:, http: URL స్కీమ్ ('strict-dynamic'ను సపోర్ట్ చేసే బ్రౌజర్‌ల ద్వారా విస్మరించబడినవి)లను జోడించడాన్ని పరిగణించండి."
   },

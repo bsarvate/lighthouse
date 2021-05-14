@@ -1703,15 +1703,6 @@
   "lighthouse-core/config/default-config.js | seoMobileGroupTitle": {
     "message": "Compatível com dispositivos móveis"
   },
-  "lighthouse-core/gather/gather-runner.js | warningRedirected": {
-    "message": "A página pode não estar a ser carregada conforme o esperado porque o seu URL de teste ({requested}) foi redirecionado para {final}. Experimente testar o segundo URL diretamente."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningSlowHostCpu": {
-    "message": "O dispositivo testado parece ter uma CPU mais lenta do que o Lighthouse esperava. Isto pode prejudicar a sua pontuação de desempenho. Saiba mais sobre como [calibrar um multiplicador de abrandamento da CPU adequado](https://github.com/GoogleChrome/lighthouse/blob/master/docs/throttling.md#cpu-throttling)."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningTimeout": {
-    "message": "A página foi carregada demasiado lentamente para terminar dentro do limite de tempo. Os resultados podem estar incompletos."
-  },
   "lighthouse-core/lib/csp-evaluator.js | allowlistFallback": {
     "message": "Considere adicionar esquemas de URL https: e http: (ignorados por navegadores que suportam \"strict-dynamic\") para serem retrocompatíveis com navegadores mais antigos."
   },

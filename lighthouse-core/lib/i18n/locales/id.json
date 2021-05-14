@@ -1703,15 +1703,6 @@
   "lighthouse-core/config/default-config.js | seoMobileGroupTitle": {
     "message": "Mobile Friendly"
   },
-  "lighthouse-core/gather/gather-runner.js | warningRedirected": {
-    "message": "Halaman tersebut mungkin tidak dimuat sesuai harapan karena URL uji Anda ({requested}) dialihkan ke {final}. Coba uji URL kedua secara langsung."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningSlowHostCpu": {
-    "message": "Perangkat yang diuji sepertinya memiliki CPU yang lebih lambat daripada perkiraan Lighthouse. Hal ini dapat berdampak buruk pada skor performa Anda. Pelajari lebih lanjut [cara mengalibrasi pengali pelambatan CPU yang sesuai](https://github.com/GoogleChrome/lighthouse/blob/master/docs/throttling.md#cpu-throttling)."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningTimeout": {
-    "message": "Pemuatan halaman terlalu lambat untuk bisa selesai tepat waktu. Hasil mungkin tidak lengkap."
-  },
   "lighthouse-core/lib/csp-evaluator.js | allowlistFallback": {
     "message": "Sebaiknya tambahkan skema URL https: dan http: (diabaikan oleh browser yang mendukung 'strict-dynamic') agar kompatibel dengan browser versi lama."
   },

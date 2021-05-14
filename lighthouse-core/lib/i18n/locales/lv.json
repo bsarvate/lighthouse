@@ -1703,15 +1703,6 @@
   "lighthouse-core/config/default-config.js | seoMobileGroupTitle": {
     "message": "Piemērota mobilajām ierīcēm"
   },
-  "lighthouse-core/gather/gather-runner.js | warningRedirected": {
-    "message": "Iespējams, lapa netiek ielādēta, kā paredzēts, jo jūsu testa URL ({requested}) tika novirzīts uz: {final}. Mēģiniet tieši testēt otro URL."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningSlowHostCpu": {
-    "message": "Šķiet, testējamās ierīces centrālā procesora ātrums ir mazāks, nekā paredzēts Lighthouse prasībās. Tas var negatīvi ietekmēt veiktspējas rezultātu. Uzziniet vairāk par to, [kā kalibrēt atbilstošu centrālā procesora palēninājuma reizinātāju](https://github.com/GoogleChrome/lighthouse/blob/master/docs/throttling.md#cpu-throttling)."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningTimeout": {
-    "message": "Lapa tika ielādēta pārāk lēni, lai ielāde tiktu pabeigta noteiktajā laika ierobežojumā. Rezultāti var būt nepilnīgi."
-  },
   "lighthouse-core/lib/csp-evaluator.js | allowlistFallback": {
     "message": "Lai nodrošinātu atpakaļsaderību ar vecākām pārlūkprogrammām, varat pievienot URL shēmas “https:” un “http:” (pārlūkprogrammās, kas atbalsta atslēgvārdu “strict-dynamic”, šīs shēmas tiks ignorētas)."
   },

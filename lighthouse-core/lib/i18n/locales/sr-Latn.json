@@ -1703,15 +1703,6 @@
   "lighthouse-core/config/default-config.js | seoMobileGroupTitle": {
     "message": "Prilagođeno mobilnim uređajima"
   },
-  "lighthouse-core/gather/gather-runner.js | warningRedirected": {
-    "message": "Stranica se možda ne učitava na očekivan način zato što je probni URL ({requested}) preusmeren na {final}. Probajte direktno da testirate drugi URL."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningSlowHostCpu": {
-    "message": "Izgleda da testirani uređaj ima sporiji procesor nego što  Lighthouse očekuje. To može negativno da utiče na ocenu učinka. Saznajte više o [kalibrisanju odgovarajućeg množioca u vezi sa usporavanjem procesora](https://github.com/GoogleChrome/lighthouse/blob/master/docs/throttling.md#cpu-throttling)."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningTimeout": {
-    "message": "Učitavanje stranice je bilo presporo da bi se dovršilo u okviru vremenskog ograničenja. Rezultati mogu da budu nepotpuni."
-  },
   "lighthouse-core/lib/csp-evaluator.js | allowlistFallback": {
     "message": "Možete da dodate https: i http: URL šeme (koje ignorišu pregledači koji podržavaju strict-dynamic) radi kompatibilnosti unazad sa starijim pregledačima."
   },

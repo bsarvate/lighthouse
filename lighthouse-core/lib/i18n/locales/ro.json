@@ -1703,15 +1703,6 @@
   "lighthouse-core/config/default-config.js | seoMobileGroupTitle": {
     "message": "Pentru dispozitivele mobile"
   },
-  "lighthouse-core/gather/gather-runner.js | warningRedirected": {
-    "message": "Este posibil ca pagina să nu se încarce conform așteptărilor, deoarece adresa URL de testare ({requested}) a fost redirecționată spre {final}. Încearcă să testezi direct a doua adresă URL."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningSlowHostCpu": {
-    "message": "Se pare că dispozitivul testat are un CPU mai lent decât prevede Lighthouse. Aceasta poate afecta negativ scorul de performanță. Află mai multe despre [calibrarea unui multiplicator corespunzător pentru încetinirea CPU-ului](https://github.com/GoogleChrome/lighthouse/blob/master/docs/throttling.md#cpu-throttling)."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningTimeout": {
-    "message": "Pagina s-a încărcat prea lent pentru a respecta limita de timp. Rezultatele pot fi incomplete."
-  },
   "lighthouse-core/lib/csp-evaluator.js | allowlistFallback": {
     "message": "Îți recomandăm să adaugi scheme de adrese URL https: și http: (ignorate de browserele care acceptă strict-dynamic) pentru retrocompatibilitatea cu browsere mai vechi."
   },

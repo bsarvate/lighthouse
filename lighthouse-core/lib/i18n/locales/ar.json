@@ -1703,15 +1703,6 @@
   "lighthouse-core/config/default-config.js | seoMobileGroupTitle": {
     "message": "متوافق مع الجوّال"
   },
-  "lighthouse-core/gather/gather-runner.js | warningRedirected": {
-    "message": "قد لا يتم تحميل الصفحة كما هو متوقَع لأن عنوان URL للاختبار ({requested}) تمت إعادة توجيهه إلى {final}. يُرجى محاولة اختبار عنوان URL الثاني مباشرةً."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningSlowHostCpu": {
-    "message": "يبدو أنّ الجهاز المختبَر يحتوي على وحدة معالجة مركزية (CPU) أبطأ مما توقعته أداة Lighthouse. قد يؤثر ذلك سلبيًا على نتيجة الأداء. تعرّف على المزيد من المعلومات عن [معايرة مُضاعِف بطء وحدة المعالجة المركزية (CPU) المناسب](https://github.com/GoogleChrome/lighthouse/blob/master/docs/throttling.md#cpu-throttling)."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningTimeout": {
-    "message": "أدّى عدم تحميل الصفحة بسرعة كافية إلى تعذّر انتهاء تحميلها في الوقت المحدّد. وقد تكون النتائج غير مكتملة."
-  },
   "lighthouse-core/lib/csp-evaluator.js | allowlistFallback": {
     "message": "ننصحك بإضافة مخطّطات عناوين URL تستخدم https:‎ وhttp:‎ (التي تتجاهلها المتصفِّحات المتوافقة مع 'strict-dynamic') لجعل سياسة CSP متوافقة مع أنظمة المتصفِّحات القديمة."
   },

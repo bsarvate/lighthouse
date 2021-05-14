@@ -1703,15 +1703,6 @@
   "lighthouse-core/config/default-config.js | seoMobileGroupTitle": {
     "message": "Оптимизация для мобильных устройств"
   },
-  "lighthouse-core/gather/gather-runner.js | warningRedirected": {
-    "message": "Эта страница может загружаться неправильно, потому что тестовый URL ({requested}) был перенаправлен на {final}. Попробуйте напрямую проверить второй URL."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningSlowHostCpu": {
-    "message": "У тестируемого устройства недостаточно быстрый процессор. Это может негативно повлиять на показатель производительности. Подробнее [о калибровке множителя замедления процессора](https://github.com/GoogleChrome/lighthouse/blob/master/docs/throttling.md#cpu-throttling)…"
-  },
-  "lighthouse-core/gather/gather-runner.js | warningTimeout": {
-    "message": "Страница загружалась слишком медленно и не загрузилась в отведенное время. Результаты могут быть неполными."
-  },
   "lighthouse-core/lib/csp-evaluator.js | allowlistFallback": {
     "message": "Чтобы обеспечить обратную совместимость со старыми браузерами, добавьте в URL протоколы https: и http: (игнорируются браузерами, которые поддерживают strict-dynamic)."
   },

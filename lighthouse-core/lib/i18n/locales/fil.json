@@ -1703,15 +1703,6 @@
   "lighthouse-core/config/default-config.js | seoMobileGroupTitle": {
     "message": "Pang-mobile"
   },
-  "lighthouse-core/gather/gather-runner.js | warningRedirected": {
-    "message": "Posibleng hindi naglo-load ang page gaya ng inaasahan dahil na-redirect ang iyong pansubok na URL ({requested}) sa {final}. Direktang subukan ang pangalawang URL."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningSlowHostCpu": {
-    "message": "Mukhang mas mabagal ang CPU ng tine-test na device kaysa sa inaasahan ng Lighthouse. Puwede itong magkaroon ng negatibong epekto sa score ng iyong performance. Matuto pa tungkol sa [pag-calibrate ng naaangkop na CPU slowdown multiplier](https://github.com/GoogleChrome/lighthouse/blob/master/docs/throttling.md#cpu-throttling)."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningTimeout": {
-    "message": "Masyadong matagal ang pag-load ng page para matapos sa inilaang limitasyon sa oras. Posibleng hindi kumpleto ang mga resulta."
-  },
   "lighthouse-core/lib/csp-evaluator.js | allowlistFallback": {
     "message": "Pag-isipang magdagdag ng https: at http: na URL scheme (binabalewala ng mga browser na sumusuporta sa 'strict-dynamic') para maging backward compatible sa mga lumang browser."
   },

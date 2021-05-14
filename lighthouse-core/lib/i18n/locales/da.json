@@ -1703,15 +1703,6 @@
   "lighthouse-core/config/default-config.js | seoMobileGroupTitle": {
     "message": "Mobilvenlig"
   },
-  "lighthouse-core/gather/gather-runner.js | warningRedirected": {
-    "message": "Siden indlæses muligvis ikke som forventet, da din testwebadresse ({requested}) blev omdirigeret til {final}. Prøv at teste den anden webadresse direkte."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningSlowHostCpu": {
-    "message": "Den testede enhed ser ud til at have en langsommere CPU, end Lighthouse forventer. Dette kan påvirke resultatet negativt. Få flere oplysninger om [kalibrering af en passende CPU-multiplikator for køkørsel](https://github.com/GoogleChrome/lighthouse/blob/master/docs/throttling.md#cpu-throttling)."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningTimeout": {
-    "message": "Siden blev indlæst for langsomt til at afslutte inden for tidsgrænsen. Resultaterne kan være ufuldstændige."
-  },
   "lighthouse-core/lib/csp-evaluator.js | allowlistFallback": {
     "message": "Overvej at tilføje webadresseformaterne https: og http: (ignoreres af browsere, der understøtter \"strict-dynamic\") for at gøre CSP'en bagudkompatibel med ældre browsere."
   },

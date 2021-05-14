@@ -1703,15 +1703,6 @@
   "lighthouse-core/config/default-config.js | seoMobileGroupTitle": {
     "message": "மொபைலுக்கேற்றது"
   },
-  "lighthouse-core/gather/gather-runner.js | warningRedirected": {
-    "message": "உங்கள் சோதனை URL ({requested}) {final}என்பதற்குத் திசைதிருப்பப்பட்டதால் எதிர்பரர்த்த அளவிற்குப் பக்கம் ஏற்றப்படாமல் போகக்கூடும். நேரடியாக இரண்டாவது URLலை சோதித்துப் பாருங்கள்."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningSlowHostCpu": {
-    "message": "சோதனை செய்யப்பட்ட சாதனம் Lighthouse எதிர்பார்ப்பதை விட வேகம் குறைவான CPUவைக் கொண்டிருப்பதுபோல் தெரிகிறது. இது உங்கள் செயல்திறனைப் பாதிக்கும். [பொருத்தமான CPU ஸ்லோடவுன் மல்டிபிளையரை அளவிடுதல்](https://github.com/GoogleChrome/lighthouse/blob/master/docs/throttling.md#cpu-throttling) குறித்து மேலும் அறிக."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningTimeout": {
-    "message": "நேர வரம்பிற்குள் பக்கத்தை முழுமையாக ஏற்ற முடியவில்லை. இதனால் முடிவுகள் காட்டப்படாமல் போகலாம்."
-  },
   "lighthouse-core/lib/csp-evaluator.js | allowlistFallback": {
     "message": "பழைய உலாவிகளுடன் இணக்கமாக இருக்கும் வகையில் https: மற்றும் http: URL திட்டங்களைச் ('strict-dynamic' என்பதை ஆதரிக்கும் உலாவிகளால் புறக்கணிக்கப்பட்டது) சேர்க்க வேண்டும்."
   },

@@ -1703,15 +1703,6 @@
   "lighthouse-core/config/default-config.js | seoMobileGroupTitle": {
     "message": "Mobiiliystävällinen"
   },
-  "lighthouse-core/gather/gather-runner.js | warningRedirected": {
-    "message": "Sivun lataus ei ehkä onnistu odotetusti, koska testi-URL ({requested}) ohjattiin uudelleen osoitteeseen {final}. Kokeile suoraan toista URL-osoitetta."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningSlowHostCpu": {
-    "message": "Testatun laitteen CPU näyttää olevan hitaampi kuin Lighthouse olettaa. Tämä voi vaikuttaa tuloksiin negatiivisesti. Lue lisää [sopivan CPU-hidastuskertoimen kalibroinnista](https://github.com/GoogleChrome/lighthouse/blob/master/docs/throttling.md#cpu-throttling)."
-  },
-  "lighthouse-core/gather/gather-runner.js | warningTimeout": {
-    "message": "Sivu ei ehtinyt latautua loppuun aikarajan sisällä. Tuloksista voi puuttua osa."
-  },
   "lighthouse-core/lib/csp-evaluator.js | allowlistFallback": {
     "message": "Harkitse https:- ja http:-URL-osoitteen kaavojen (joita \"strict-dynamicia\" tukevat selaimet ohittavat) lisäämistä, niin voit saavuttaa taaksepäinyhteensopivuuden vanhempien selainten kanssa."
   },
