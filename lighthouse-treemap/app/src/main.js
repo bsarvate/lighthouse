@@ -582,6 +582,13 @@ class TreemapViewer {
       const depthOneNodeColor = hue !== undefined ? this.getColorFromHue(hue) : 'white';
 
       let backgroundColor;
+
+      if (this.currentViewMode.id === 'unused-bytes' && hue) {
+        const pctUsed = (1 - (node.unusedBytes || 0) / node.resourceBytes) * 100;
+        const darkerColor = TreemapUtil.hsl(hue || 0, 60, 83);
+        // backgroundColor = `linear-gradient(to right, ${depthOneNodeColor} ${pctUsed}%, ${darkerColor} ${pctUsed}%)`;
+      }
+
       if (this.currentViewMode.highlights) {
         // A view can set nodes to highlight. If so, don't color anything else.
         const path = this.nodeToPathMap.get(node);
@@ -589,17 +596,16 @@ class TreemapViewer {
           .find(highlight => TreemapUtil.pathsAreEqual(path, highlight.path));
         if (highlight) {
           backgroundColor = highlight.color || depthOneNodeColor;
+
+          const pctUsed = (1 - (node.unusedBytes || 0) / node.resourceBytes) * 100;
+        const darkerColor = TreemapUtil.hsl(hue || 0, 60, 83);
+        backgroundColor = `linear-gradient(to right, ${depthOneNodeColor} ${pctUsed}%, ${darkerColor} ${pctUsed}%)`;
+
         } else {
           backgroundColor = 'white';
         }
       } else {
         backgroundColor = depthOneNodeColor;
-      }
-
-      if (this.currentViewMode.id === 'unused-bytes' && hue) {
-        const pctUsed = (1 - (node.unusedBytes || 0) / node.resourceBytes) * 100;
-        const darkerColor = TreemapUtil.hsl(hue || 0, 60, 83);
-        backgroundColor = `linear-gradient(to right, ${depthOneNodeColor} ${pctUsed}%, ${darkerColor} ${pctUsed}%)`;
       }
 
       // @ts-ignore: webtreemap will add a dom node property to every node.
