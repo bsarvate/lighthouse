@@ -347,6 +347,15 @@ class PerformanceCategoryRenderer extends CategoryRenderer {
             perfAuditEl.hidden = false;
           }
         }
+
+        // Hide groups/clumps if all child audits are also hidden.
+        const groupEls = categoryEl.querySelectorAll('div.lh-audit-group, details.lh-audit-group');
+        for (const groupEl of groupEls) {
+          groupEl.hidden = false;
+          const childEls = Array.from(groupEl.querySelectorAll('div.lh-audit'));
+          const areAllHidden = !!childEls.length && childEls.every(auditEl => auditEl.hidden);
+          groupEl.hidden = areAllHidden;
+        }
       });
     }
   }
