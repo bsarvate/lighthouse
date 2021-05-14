@@ -39,10 +39,6 @@ function makeFakeDriver({protocolGetVersionResponse}) {
     disconnect() {
       return Promise.resolve();
     },
-    /** @param {string} url */
-    gotoURL(url) {
-      return Promise.resolve({finalUrl: url, timedOut: false});
-    },
     dismissJavaScriptDialogs() {
       return Promise.resolve();
     },

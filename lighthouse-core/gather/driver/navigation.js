@@ -79,7 +79,7 @@ function resolveWaitForFullyLoadedOptions(options) {
  * @param {LH.Gatherer.FRTransitionalDriver} driver
  * @param {string} url
  * @param {NavigationOptions} options
- * @return {Promise<{finalUrl: string, timedOut: boolean, warnings: Array<LH.IcuMessage>}>}
+ * @return {Promise<{finalUrl: string, warnings: Array<LH.IcuMessage>}>}
  */
 async function gotoURL(driver, url, options) {
   const session = driver.defaultSession;
@@ -123,7 +123,6 @@ async function gotoURL(driver, url, options) {
 
   return {
     finalUrl,
-    timedOut,
     warnings: getNavigationWarnings({timedOut, finalUrl, requestedUrl: url}),
   };
 }
