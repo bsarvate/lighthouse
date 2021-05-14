@@ -89,10 +89,10 @@ class I18n {
 
   /**
    * @param {number} size
-   * @param {number=} granularity Controls how coarse the displayed value is, defaults to 1
+   * @param {number=} granularity Controls how coarse the displayed value is, defaults to 0.1
    * @return {string}
    */
-  formatBytesWithBestUnit(size, granularity = 1) {
+  formatBytesWithBestUnit(size, granularity = 0.1) {
     if (size >= MiB) return this.formatBytesToMiB(size, granularity);
     if (size >= KiB) return this.formatBytesToKiB(size, granularity);
     return this.formatNumber(size, granularity) + '\xa0B';
